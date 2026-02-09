@@ -12,54 +12,49 @@ use Illuminate\View\View;
 
 class MealPlanController extends Controller
 {
+    private const DAY_NAMES = [
+        Carbon::SUNDAY => 'Sonntag',
+        Carbon::MONDAY => 'Montag',
+        Carbon::TUESDAY => 'Dienstag',
+        Carbon::WEDNESDAY => 'Mittwoch',
+        Carbon::THURSDAY => 'Donnerstag',
+        Carbon::FRIDAY => 'Freitag',
+        Carbon::SATURDAY => 'Samstag',
+    ];
+
     public function index(Request $request): View
     {
         $user = auth()->user();
         $householdId = $user->household_id;
+        $weekStartDay = $user->bio_box_day ?? Carbon::MONDAY;
 
-        // Parse week parameter or default to current week
-        if ($request->filled('week')) {
-            try {
-                $monday = Carbon::parse($request->week);
-                // Ensure it's a Monday
-                if ($monday->dayOfWeek !== Carbon::MONDAY) {
-                    $monday = $monday->startOfWeek(Carbon::MONDAY);
-                }
-            } catch (\Exception $e) {
-                $monday = Carbon::now()->startOfWeek(Carbon::MONDAY);
-            }
-        } else {
-            $monday = Carbon::now()->startOfWeek(Carbon::MONDAY);
-        }
+        $startDate = $this->resolveWeekStart($request->input('week'), $weekStartDay);
+        $endDate = $startDate->copy()->addDays(6);
 
-        $sunday = $monday->copy()->endOfWeek(Carbon::SUNDAY);
-
-        // Build days array
         $days = [];
-        $dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
-
         for ($i = 0; $i < 7; $i++) {
-            $date = $monday->copy()->addDays($i);
+            $date = $startDate->copy()->addDays($i);
             $days[] = [
                 'date' => $date,
-                'name' => $dayNames[$i],
+                'name' => self::DAY_NAMES[$date->dayOfWeek],
                 'isToday' => $date->isToday(),
             ];
         }
 
-        // Load meal plans for this week
         $mealPlans = MealPlan::where('household_id', $householdId)
-            ->whereBetween('date', [$monday->toDateString(), $sunday->toDateString()])
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
             ->with('recipe.category')
             ->get()
             ->keyBy(fn ($mp) => $mp->date->toDateString());
 
-        // Load recipes for the selector
         $recipes = Recipe::orderBy('title')->get(['id', 'title', 'category_id']);
 
-        $prevWeek = $monday->copy()->subWeek()->toDateString();
-        $nextWeek = $monday->copy()->addWeek()->toDateString();
-        $weekLabel = 'KW ' . $monday->isoWeek() . ' / ' . $monday->year;
+        $prevWeek = $startDate->copy()->subWeek()->toDateString();
+        $nextWeek = $startDate->copy()->addWeek()->toDateString();
+        $weekLabel = 'KW ' . $startDate->isoWeek() . ' / ' . $startDate->year;
+
+        $monday = $startDate;
+        $sunday = $endDate;
 
         return view('meal-plan.index', compact(
             'days', 'mealPlans', 'recipes', 'monday', 'sunday',
@@ -118,38 +113,53 @@ class MealPlanController extends Controller
     {
         $user = auth()->user();
         $householdId = $user->household_id;
+        $weekStartDay = $user->bio_box_day ?? Carbon::MONDAY;
 
-        if ($request->filled('week')) {
-            try {
-                $monday = Carbon::parse($request->week)->startOfWeek(Carbon::MONDAY);
-            } catch (\Exception $e) {
-                $monday = Carbon::now()->startOfWeek(Carbon::MONDAY);
-            }
-        } else {
-            $monday = Carbon::now()->startOfWeek(Carbon::MONDAY);
-        }
+        $startDate = $this->resolveWeekStart($request->input('week'), $weekStartDay);
+        $endDate = $startDate->copy()->addDays(6);
 
-        $sunday = $monday->copy()->endOfWeek(Carbon::SUNDAY);
-
-        $dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
         $days = [];
-
         for ($i = 0; $i < 7; $i++) {
-            $date = $monday->copy()->addDays($i);
+            $date = $startDate->copy()->addDays($i);
             $days[] = [
                 'date' => $date,
-                'name' => $dayNames[$i],
+                'name' => self::DAY_NAMES[$date->dayOfWeek],
             ];
         }
 
         $mealPlans = MealPlan::where('household_id', $householdId)
-            ->whereBetween('date', [$monday->toDateString(), $sunday->toDateString()])
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
             ->with(['recipe.ingredients' => fn ($q) => $q->orderBy('sort_order'), 'recipe.category'])
             ->get()
             ->keyBy(fn ($mp) => $mp->date->toDateString());
 
-        $weekLabel = 'KW ' . $monday->isoWeek() . ' / ' . $monday->year;
+        $weekLabel = 'KW ' . $startDate->isoWeek() . ' / ' . $startDate->year;
+
+        $monday = $startDate;
 
         return view('meal-plan.print', compact('days', 'mealPlans', 'weekLabel', 'monday'));
+    }
+
+    private function resolveWeekStart(?string $weekParam, int $weekStartDay): Carbon
+    {
+        if ($weekParam) {
+            try {
+                $date = Carbon::parse($weekParam);
+                return $this->previousOrSame($date, $weekStartDay);
+            } catch (\Exception $e) {
+                // fall through
+            }
+        }
+
+        return $this->previousOrSame(Carbon::today(), $weekStartDay);
+    }
+
+    private function previousOrSame(Carbon $date, int $targetDay): Carbon
+    {
+        $date = $date->copy();
+        while ($date->dayOfWeek !== $targetDay) {
+            $date->subDay();
+        }
+        return $date;
     }
 }

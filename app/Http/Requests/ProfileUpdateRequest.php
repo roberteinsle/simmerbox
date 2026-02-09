@@ -25,6 +25,7 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'bio_box_day' => ['nullable', 'integer', 'between:0,6'],
         ];
     }
 }

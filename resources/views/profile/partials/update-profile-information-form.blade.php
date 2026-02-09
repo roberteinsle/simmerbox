@@ -47,6 +47,18 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="bio_box_day" value="Bio-Kiste Liefertag" />
+            <select id="bio_box_day" name="bio_box_day" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                <option value="">Nicht festgelegt (Montag)</option>
+                @foreach([1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag', 5 => 'Freitag', 6 => 'Samstag', 0 => 'Sonntag'] as $value => $label)
+                    <option value="{{ $value }}" {{ old('bio_box_day', $user->bio_box_day) === $value ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Der Wochenplan startet an diesem Tag.</p>
+            <x-input-error class="mt-2" :messages="$errors->get('bio_box_day')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 

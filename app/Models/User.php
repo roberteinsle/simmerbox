@@ -19,6 +19,7 @@ class User extends Authenticatable
         'password',
         'household_id',
         'is_admin',
+        'bio_box_day',
     ];
 
     protected $hidden = [
@@ -32,6 +33,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'bio_box_day' => 'integer',
         ];
     }
 

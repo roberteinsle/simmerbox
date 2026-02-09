@@ -7,6 +7,7 @@ use App\Http\Controllers\HouseholdInvitationController;
 use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\RecipeExportImportController;
 use App\Http\Controllers\RecipeImportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Middleware\EnsureAdmin;
@@ -29,9 +30,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Recipes
     Route::resource('recipes', RecipeController::class);
 
-    // Recipe Import
+    // Recipe Import/Export
     Route::get('/recipes-import', [RecipeImportController::class, 'create'])->name('recipes.import');
     Route::post('/recipes-import', [RecipeImportController::class, 'store'])->name('recipes.import.store');
+    Route::get('/recipes-export', [RecipeExportImportController::class, 'export'])->name('recipes.export');
+    Route::post('/recipes-import-zip', [RecipeExportImportController::class, 'import'])->name('recipes.import-zip');
 
     // Household
     Route::get('/household', [HouseholdController::class, 'show'])->name('household.show');
