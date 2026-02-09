@@ -5,7 +5,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="text-xl font-bold text-orange-500">
+                    <a href="{{ route('dashboard') }}" class="text-xl font-bold text-olive-500">
                         Simmerbox
                     </a>
                 </div>
@@ -30,7 +30,7 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6 sm:gap-4">
                 <!-- Search -->
                 <form method="GET" action="{{ route('search') }}" class="relative">
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Suche..." class="w-48 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 pl-8">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Suche..." class="w-48 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500 pl-8">
                     <svg class="w-4 h-4 text-gray-400 absolute left-2 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                 </form>
 
@@ -101,7 +101,7 @@
             <!-- Mobile Search -->
             <div class="px-4 pb-2">
                 <form method="GET" action="{{ route('search') }}" class="relative">
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Rezepte suchen..." class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 pl-8">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Rezepte suchen..." class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500 pl-8">
                     <svg class="w-4 h-4 text-gray-400 absolute left-2 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                 </form>
             </div>

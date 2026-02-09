@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
 use App\Models\Category;
+use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\Tag;
 use App\Services\ImageService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -92,7 +94,31 @@ class RecipeController extends Controller
 
         $recipe->load(['category', 'tags', 'user', 'ingredients' => fn ($q) => $q->orderBy('sort_order'), 'preparationSteps' => fn ($q) => $q->orderBy('step_number')]);
 
-        return view('recipes.show', compact('recipe'));
+        $freeDays = [];
+        $user = auth()->user();
+        if ($user->household_id) {
+            $occupiedDates = MealPlan::where('household_id', $user->household_id)
+                ->where('date', '>=', Carbon::today()->toDateString())
+                ->pluck('date')
+                ->map(fn ($d) => Carbon::parse($d)->toDateString())
+                ->toArray();
+
+            $dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+            $check = Carbon::today();
+            while (count($freeDays) < 5) {
+                $dateStr = $check->toDateString();
+                if (!in_array($dateStr, $occupiedDates)) {
+                    $freeDays[] = [
+                        'date' => $dateStr,
+                        'label' => $dayNames[$check->dayOfWeek] . ', ' . $check->format('d.m.'),
+                        'isToday' => $check->isToday(),
+                    ];
+                }
+                $check->addDay();
+            }
+        }
+
+        return view('recipes.show', compact('recipe', 'freeDays'));
     }
 
     public function edit(Recipe $recipe): View
@@ -102,7 +128,32 @@ class RecipeController extends Controller
         $recipe->load(['ingredients' => fn ($q) => $q->orderBy('sort_order'), 'preparationSteps' => fn ($q) => $q->orderBy('step_number'), 'tags']);
         $categories = Category::orderBy('sort_order')->get();
 
-        return view('recipes.edit', compact('recipe', 'categories'));
+        // Naechste 5 freie Tage fuer Wochenplan
+        $freeDays = [];
+        $user = auth()->user();
+        if ($user->household_id) {
+            $occupiedDates = MealPlan::where('household_id', $user->household_id)
+                ->where('date', '>=', Carbon::today()->toDateString())
+                ->pluck('date')
+                ->map(fn ($d) => Carbon::parse($d)->toDateString())
+                ->toArray();
+
+            $dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+            $check = Carbon::today();
+            while (count($freeDays) < 5) {
+                $dateStr = $check->toDateString();
+                if (!in_array($dateStr, $occupiedDates)) {
+                    $freeDays[] = [
+                        'date' => $dateStr,
+                        'label' => $dayNames[$check->dayOfWeek] . ', ' . $check->format('d.m.'),
+                        'isToday' => $check->isToday(),
+                    ];
+                }
+                $check->addDay();
+            }
+        }
+
+        return view('recipes.edit', compact('recipe', 'categories', 'freeDays'));
     }
 
     public function update(UpdateRecipeRequest $request, Recipe $recipe): RedirectResponse

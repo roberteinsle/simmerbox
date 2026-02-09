@@ -23,12 +23,12 @@
                 <form method="POST" action="{{ route('recurring-groceries.store') }}" class="space-y-3">
                     @csrf
                     <div>
-                        <input type="text" name="raw_input" value="{{ old('raw_input') }}" placeholder="z.B. Milch, 1L, woechentlich am Montag" class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                        <input type="text" name="raw_input" value="{{ old('raw_input') }}" placeholder="z.B. Milch, 1L, woechentlich am Montag" class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                         @error('raw_input')
                             <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 transition">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-olive-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-olive-600 transition">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                         Hinzufuegen
                     </button>

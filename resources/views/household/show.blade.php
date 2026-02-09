@@ -34,8 +34,8 @@
                         <form method="POST" action="{{ route('household.update') }}" class="mt-4 flex gap-2">
                             @csrf
                             @method('PUT')
-                            <input type="text" name="name" value="{{ $household->name }}" class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm text-sm focus:border-orange-500 focus:ring-orange-500">
-                            <button type="submit" class="px-3 py-2 bg-orange-500 text-white text-sm rounded-md hover:bg-orange-600 transition">
+                            <input type="text" name="name" value="{{ $household->name }}" class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm text-sm focus:border-olive-500 focus:ring-olive-500">
+                            <button type="submit" class="px-3 py-2 bg-olive-500 text-white text-sm rounded-md hover:bg-olive-600 transition">
                                 Umbenennen
                             </button>
                         </form>
@@ -52,7 +52,7 @@
                                     <span class="text-gray-900 dark:text-gray-100 font-medium">{{ $member->name }}</span>
                                     <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">{{ $member->email }}</span>
                                     @if($member->id === $household->owner_id)
-                                        <span class="ml-2 px-2 py-0.5 text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 rounded-full">Eigentuemer</span>
+                                        <span class="ml-2 px-2 py-0.5 text-xs bg-olive-100 dark:bg-olive-900 text-olive-700 dark:text-olive-300 rounded-full">Eigentuemer</span>
                                     @endif
                                 </div>
                             </li>
@@ -83,8 +83,8 @@
                     <!-- Email Invitation -->
                     <form method="POST" action="{{ route('household.invite') }}" class="flex gap-2">
                         @csrf
-                        <input type="email" name="email" placeholder="E-Mail-Adresse" required class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm text-sm focus:border-orange-500 focus:ring-orange-500">
-                        <button type="submit" class="px-4 py-2 bg-orange-500 text-white text-sm rounded-md hover:bg-orange-600 transition">
+                        <input type="email" name="email" placeholder="E-Mail-Adresse" required class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm text-sm focus:border-olive-500 focus:ring-olive-500">
+                        <button type="submit" class="px-4 py-2 bg-olive-500 text-white text-sm rounded-md hover:bg-olive-600 transition">
                             Einladen
                         </button>
                     </form>
@@ -114,8 +114,8 @@
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Neuen Haushalt erstellen</h3>
                         <form method="POST" action="{{ route('household.store') }}" class="flex gap-2">
                             @csrf
-                            <input type="text" name="name" placeholder="Name des Haushalts" required class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
-                            <button type="submit" class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition">
+                            <input type="text" name="name" placeholder="Name des Haushalts" required class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                            <button type="submit" class="px-4 py-2 bg-olive-500 text-white rounded-md hover:bg-olive-600 transition">
                                 Erstellen
                             </button>
                         </form>
@@ -127,7 +127,7 @@
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Haushalt beitreten</h3>
                         <form method="POST" action="{{ route('household.join-code') }}" class="flex gap-2">
                             @csrf
-                            <input type="text" name="invite_code" placeholder="Einladungscode eingeben" required class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                            <input type="text" name="invite_code" placeholder="Einladungscode eingeben" required class="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                             <button type="submit" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition">
                                 Beitreten
                             </button>

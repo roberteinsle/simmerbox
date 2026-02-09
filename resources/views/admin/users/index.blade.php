@@ -28,7 +28,7 @@
                                 <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{{ $user->household?->name ?? '-' }}</td>
                                 <td class="px-4 py-3 text-sm">
                                     @if($user->is_admin)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300">Admin</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-olive-100 dark:bg-olive-900 text-olive-700 dark:text-olive-300">Admin</span>
                                     @else
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300">Benutzer</span>
                                     @endif

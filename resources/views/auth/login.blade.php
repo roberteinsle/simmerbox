@@ -33,7 +33,7 @@
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-orange-500 shadow-sm focus:ring-orange-500" name="remember">
+                <input id="remember_me" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-olive-500 shadow-sm focus:ring-olive-500" name="remember">
                 <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Angemeldet bleiben</span>
             </label>
         </div>
@@ -41,7 +41,7 @@
         <div class="flex items-center justify-between mt-4">
             <div>
                 @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500" href="{{ route('password.request') }}">
+                    <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-olive-500" href="{{ route('password.request') }}">
                         Passwort vergessen?
                     </a>
                 @endif

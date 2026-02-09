@@ -11,21 +11,21 @@
             <form method="GET" action="{{ route('search') }}" class="mb-6">
                 <div class="flex flex-col sm:flex-row gap-3">
                     <div class="flex-1">
-                        <input type="text" name="q" value="{{ $query }}" placeholder="Rezepte suchen..." autofocus class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                        <input type="text" name="q" value="{{ $query }}" placeholder="Rezepte suchen..." autofocus class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                     </div>
-                    <select name="category" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
+                    <select name="category" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500 text-sm">
                         <option value="">Alle Kategorien</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" {{ $categoryId == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                         @endforeach
                     </select>
-                    <select name="tag" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
+                    <select name="tag" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500 text-sm">
                         <option value="">Alle Tags</option>
                         @foreach($tags as $tag)
                             <option value="{{ $tag->id }}" {{ $tagId == $tag->id ? 'selected' : '' }}>{{ $tag->name }}</option>
                         @endforeach
                     </select>
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 transition">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-olive-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-olive-600 transition">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         Suchen
                     </button>
@@ -55,9 +55,9 @@
                                     </div>
                                 @endif
                                 <div class="p-4">
-                                    <h3 class="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-orange-500 transition">{{ $recipe->title }}</h3>
+                                    <h3 class="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-olive-500 transition">{{ $recipe->title }}</h3>
                                     <div class="flex items-center gap-2 mt-1">
-                                        <span class="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded-full">{{ $recipe->category->name }}</span>
+                                        <span class="text-xs bg-olive-100 dark:bg-olive-900 text-olive-700 dark:text-olive-300 px-2 py-0.5 rounded-full">{{ $recipe->category->name }}</span>
                                         @if($recipe->preparation_time)
                                             <span class="text-xs text-gray-500 dark:text-gray-400">{{ $recipe->preparation_time }} Min.</span>
                                         @endif

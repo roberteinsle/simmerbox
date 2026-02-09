@@ -9,11 +9,11 @@ use Intervention\Image\ImageManager;
 
 class ImageService
 {
-    protected ImageManager $manager;
+    protected ?ImageManager $manager = null;
 
-    public function __construct()
+    protected function manager(): ImageManager
     {
-        $this->manager = new ImageManager(new Driver());
+        return $this->manager ??= new ImageManager(new Driver());
     }
 
     public function store(UploadedFile $file, string $directory = 'recipes'): string
@@ -21,14 +21,14 @@ class ImageService
         $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
         $path = $directory . '/' . $filename;
 
-        $image = $this->manager->read($file->getPathname());
+        $image = $this->manager()->read($file->getPathname());
         $image->scaleDown(width: 1200);
 
         Storage::disk('public')->put($path, $image->toJpeg(85)->toString());
 
         // Create thumbnail
         $thumbPath = $directory . '/thumbs/' . $filename;
-        $thumb = $this->manager->read($file->getPathname());
+        $thumb = $this->manager()->read($file->getPathname());
         $thumb->cover(400, 300);
 
         Storage::disk('public')->put($thumbPath, $thumb->toJpeg(80)->toString());

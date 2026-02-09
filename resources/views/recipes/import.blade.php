@@ -28,7 +28,7 @@
     "Wasser zum Kochen bringen.",
     "Hackfleisch anbraten."
   ]
-}' }}' class="w-full font-mono text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">{{ old('json') }}</textarea>
+}' }}' class="w-full font-mono text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">{{ old('json') }}</textarea>
                         @error('json')
                             @if(is_array($errors->get('json')))
                                 @foreach($errors->get('json') as $error)
@@ -59,7 +59,7 @@
                         <a href="{{ route('recipes.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-300 dark:bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-gray-700 dark:text-gray-200 uppercase tracking-widest hover:bg-gray-400 dark:hover:bg-gray-500 transition">
                             Abbrechen
                         </a>
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 transition">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-olive-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-olive-600 transition">
                             Importieren
                         </button>
                     </div>

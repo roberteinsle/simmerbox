@@ -23,31 +23,32 @@
                         <div class="space-y-4">
                             @foreach($group['settings'] as $settingKey => $config)
                                 @php
-                                    $fieldName = 'settings_' . str_replace('.', '_', $settingKey);
+                                    $fieldName = 'settings[' . $settingKey . ']';
+                                    $fieldId = 'settings_' . str_replace('.', '_', $settingKey);
                                     $currentValue = $values[$settingKey] ?? '';
                                 @endphp
 
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                                    <label for="{{ $fieldName }}" class="sm:w-1/3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <label for="{{ $fieldId }}" class="sm:w-1/3 text-sm font-medium text-gray-700 dark:text-gray-300">
                                         {{ $config['label'] }}
                                     </label>
                                     <div class="sm:w-2/3">
                                         @if($config['type'] === 'boolean')
                                             <input type="hidden" name="{{ $fieldName }}" value="0">
                                             <label class="inline-flex items-center">
-                                                <input type="checkbox" name="{{ $fieldName }}" value="1" {{ $currentValue ? 'checked' : '' }} class="rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                                                <input type="checkbox" name="{{ $fieldName }}" value="1" {{ $currentValue ? 'checked' : '' }} class="rounded border-gray-300 dark:border-gray-600 text-olive-500 focus:ring-olive-500">
                                                 <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Aktiviert</span>
                                             </label>
                                         @elseif($config['type'] === 'select')
-                                            <select name="{{ $fieldName }}" id="{{ $fieldName }}" class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                            <select name="{{ $fieldName }}" id="{{ $fieldId }}" class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                                                 @foreach($config['options'] as $optValue => $optLabel)
                                                     <option value="{{ $optValue }}" {{ $currentValue == $optValue ? 'selected' : '' }}>{{ $optLabel }}</option>
                                                 @endforeach
                                             </select>
                                         @elseif($config['type'] === 'number')
-                                            <input type="number" name="{{ $fieldName }}" id="{{ $fieldName }}" value="{{ $currentValue }}" min="0" class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                            <input type="number" name="{{ $fieldName }}" id="{{ $fieldId }}" value="{{ $currentValue }}" min="0" class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                                         @else
-                                            <input type="{{ $config['type'] }}" name="{{ $fieldName }}" id="{{ $fieldName }}" value="{{ $currentValue }}" class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                            <input type="{{ $config['type'] }}" name="{{ $fieldName }}" id="{{ $fieldId }}" value="{{ $currentValue }}" class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                                         @endif
                                     </div>
                                 </div>
@@ -57,7 +58,7 @@
                 @endforeach
 
                 <div class="flex justify-end">
-                    <button type="submit" class="inline-flex items-center px-6 py-3 bg-orange-500 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-orange-600 transition">
+                    <button type="submit" class="inline-flex items-center px-6 py-3 bg-olive-500 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-olive-600 transition">
                         Einstellungen speichern
                     </button>
                 </div>

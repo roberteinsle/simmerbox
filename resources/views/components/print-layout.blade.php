@@ -26,7 +26,7 @@
         <div class="print-container max-w-4xl mx-auto p-6">
             <div class="no-print mb-4 flex justify-between items-center">
                 <a href="{{ url()->previous() }}" class="text-gray-600 hover:text-gray-800">&larr; Zurueck</a>
-                <button onclick="window.print()" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
+                <button onclick="window.print()" class="bg-olive-500 text-white px-4 py-2 rounded hover:bg-olive-600">
                     Drucken
                 </button>
             </div>

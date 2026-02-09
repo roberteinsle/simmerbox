@@ -17,7 +17,7 @@
                 @endif
                 <form method="POST" action="{{ route('groceries.generate') }}">
                     @csrf
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 transition">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-olive-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-olive-600 transition">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                         Aus Wochenplan generieren
                     </button>
@@ -32,7 +32,7 @@
             @if($allLists->count() > 1)
                 <div class="mb-4">
                     <label for="list-select" class="sr-only">Liste waehlen</label>
-                    <select id="list-select" onchange="window.location.href='{{ route('groceries.index') }}?list=' + this.value" class="w-full sm:w-auto border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
+                    <select id="list-select" onchange="window.location.href='{{ route('groceries.index') }}?list=' + this.value" class="w-full sm:w-auto border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500 text-sm">
                         @foreach($allLists as $list)
                             <option value="{{ $list->id }}" {{ $groceryList && $groceryList->id === $list->id ? 'selected' : '' }}>
                                 {{ $list->name }} {{ $list->is_active ? '(aktiv)' : '' }}
@@ -55,7 +55,7 @@
                     </div>
                     @if($totalItems > 0)
                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                            <div class="bg-orange-500 h-2 rounded-full transition-all duration-300" style="width: {{ ($checkedItems / $totalItems) * 100 }}%"></div>
+                            <div class="bg-olive-500 h-2 rounded-full transition-all duration-300" style="width: {{ ($checkedItems / $totalItems) * 100 }}%"></div>
                         </div>
                     @endif
                 </div>
@@ -69,7 +69,7 @@
                                 <button
                                     @click="toggleItem({{ $item->id }}, $el); checked = !checked"
                                     class="flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition"
-                                    :class="checked ? 'bg-orange-500 border-orange-500' : 'border-gray-300 dark:border-gray-600 hover:border-orange-400'"
+                                    :class="checked ? 'bg-olive-500 border-olive-500' : 'border-gray-300 dark:border-gray-600 hover:border-olive-400'"
                                 >
                                     <svg x-show="checked" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -85,7 +85,7 @@
                                         {{ $item->name }}
                                     </span>
                                     @if($item->is_manual)
-                                        <span class="ml-1 text-xs text-orange-500">(manuell)</span>
+                                        <span class="ml-1 text-xs text-olive-500">(manuell)</span>
                                     @endif
                                 </div>
 
@@ -110,10 +110,10 @@
                         <form method="POST" action="{{ route('groceries.add-item') }}" class="flex gap-2">
                             @csrf
                             <input type="hidden" name="grocery_list_id" value="{{ $groceryList->id }}">
-                            <input type="text" name="name" placeholder="Neuer Eintrag..." required class="flex-1 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
-                            <input type="text" name="amount" placeholder="Menge" class="w-20 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
-                            <input type="text" name="unit" placeholder="Einheit" class="w-20 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
-                            <button type="submit" class="inline-flex items-center px-3 py-2 bg-orange-500 border border-transparent rounded-md text-xs text-white font-semibold hover:bg-orange-600 transition">
+                            <input type="text" name="name" placeholder="Neuer Eintrag..." required class="flex-1 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                            <input type="text" name="amount" placeholder="Menge" class="w-20 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                            <input type="text" name="unit" placeholder="Einheit" class="w-20 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                            <button type="submit" class="inline-flex items-center px-3 py-2 bg-olive-500 border border-transparent rounded-md text-xs text-white font-semibold hover:bg-olive-600 transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                             </button>
                         </form>
@@ -143,7 +143,7 @@
                     </p>
                     <form method="POST" action="{{ route('groceries.generate') }}">
                         @csrf
-                        <button type="submit" class="inline-flex items-center px-6 py-3 bg-orange-500 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-orange-600 transition">
+                        <button type="submit" class="inline-flex items-center px-6 py-3 bg-olive-500 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-olive-600 transition">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                             Aus Wochenplan generieren
                         </button>

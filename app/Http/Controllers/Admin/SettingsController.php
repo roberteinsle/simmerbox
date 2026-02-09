@@ -64,19 +64,15 @@ class SettingsController extends Controller
 
     public function update(Request $request, SettingsService $settings): RedirectResponse
     {
-        $data = $request->except('_token', '_method');
+        $data = $request->input('settings', []);
 
-        foreach ($data as $key => $value) {
-            // Konvertiere "settings.key.subkey" zu "key.subkey"
-            $settingKey = str_replace('settings_', '', $key);
-            $settingKey = str_replace('_', '.', $settingKey);
-
+        foreach ($data as $settingKey => $value) {
             // Boolean-Handling: Checkboxen senden nur wenn angehakt
             if ($value === 'on' || $value === '1') {
                 $value = true;
             } elseif ($value === '0') {
                 $value = false;
-            } elseif (is_numeric($value) && str_contains($settingKey, 'size') || str_contains($settingKey, 'portions')) {
+            } elseif (is_numeric($value) && (str_contains($settingKey, 'size') || str_contains($settingKey, 'portions'))) {
                 $value = (int) $value;
             }
 

@@ -13,8 +13,8 @@
             <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-4 mb-6">
                 <form method="POST" action="{{ route('admin.categories.store') }}" class="flex gap-2">
                     @csrf
-                    <input type="text" name="name" placeholder="Neue Kategorie..." required class="flex-1 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md text-xs text-white font-semibold hover:bg-orange-600 transition">
+                    <input type="text" name="name" placeholder="Neue Kategorie..." required class="flex-1 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-olive-500 border border-transparent rounded-md text-xs text-white font-semibold hover:bg-olive-600 transition">
                         Hinzufuegen
                     </button>
                 </form>
@@ -37,7 +37,7 @@
                                 <form x-show="editing" x-cloak method="POST" action="{{ route('admin.categories.update', $category) }}" class="flex gap-2">
                                     @csrf
                                     @method('PUT')
-                                    <input type="text" name="name" value="{{ $category->name }}" class="flex-1 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <input type="text" name="name" value="{{ $category->name }}" class="flex-1 text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                                     <button type="submit" class="text-xs text-green-600 hover:text-green-800 dark:text-green-400">Speichern</button>
                                     <button type="button" @click="editing = false" class="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400">Abbrechen</button>
                                 </form>

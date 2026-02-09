@@ -8,7 +8,7 @@
                 <a href="{{ route('recipes.import') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 dark:bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-gray-600 transition">
                     JSON Import
                 </a>
-                <a href="{{ route('recipes.create') }}" class="inline-flex items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 transition">
+                <a href="{{ route('recipes.create') }}" class="inline-flex items-center px-4 py-2 bg-olive-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-olive-600 transition">
                     Neues Rezept
                 </a>
             </div>
@@ -22,11 +22,11 @@
                 <form method="GET" action="{{ route('recipes.index') }}" class="flex flex-wrap gap-4 items-end">
                     <div class="flex-1 min-w-[200px]">
                         <label for="q" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Suche</label>
-                        <input type="text" name="q" id="q" value="{{ request('q') }}" placeholder="Rezept suchen..." class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                        <input type="text" name="q" id="q" value="{{ request('q') }}" placeholder="Rezept suchen..." class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                     </div>
                     <div>
                         <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategorie</label>
-                        <select name="category" id="category" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                        <select name="category" id="category" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                             <option value="">Alle Kategorien</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
@@ -35,7 +35,7 @@
                     </div>
                     <div>
                         <label for="tag" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tag</label>
-                        <select name="tag" id="tag" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                        <select name="tag" id="tag" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                             <option value="">Alle Tags</option>
                             @foreach($tags as $tag)
                                 <option value="{{ $tag->id }}" {{ request('tag') == $tag->id ? 'selected' : '' }}>{{ $tag->name }}</option>
@@ -43,7 +43,7 @@
                         </select>
                     </div>
                     <div class="flex gap-2">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 transition">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-olive-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-olive-600 transition">
                             Filtern
                         </button>
                         @if(request()->hasAny(['q', 'category', 'tag']))
@@ -72,7 +72,12 @@
                                 @endif
                             </div>
                             <div class="p-4">
-                                <span class="inline-block px-2 py-1 text-xs font-medium bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 rounded mb-2">{{ $recipe->category->name }}</span>
+                                <div class="flex flex-wrap gap-1 mb-2">
+                                    <span class="inline-block px-2 py-0.5 text-xs font-medium bg-olive-100 dark:bg-olive-900 text-olive-700 dark:text-olive-300 rounded">{{ $recipe->category->name }}</span>
+                                    @foreach($recipe->tags as $tag)
+                                        <span class="inline-block px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded hover:bg-olive-100 dark:hover:bg-olive-900 hover:text-olive-700 dark:hover:text-olive-300 transition tag-link" data-tag-id="{{ $tag->id }}">{{ $tag->name }}</span>
+                                    @endforeach
+                                </div>
                                 <h3 class="font-semibold text-gray-900 dark:text-gray-100 truncate">{{ $recipe->title }}</h3>
                                 <div class="flex items-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
                                     @if($recipe->preparation_time)
@@ -91,11 +96,24 @@
             @else
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-12 text-center">
                     <p class="text-gray-500 dark:text-gray-400 text-lg">Keine Rezepte gefunden.</p>
-                    <a href="{{ route('recipes.create') }}" class="inline-flex items-center mt-4 px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 transition">
+                    <a href="{{ route('recipes.create') }}" class="inline-flex items-center mt-4 px-4 py-2 bg-olive-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-olive-600 transition">
                         Erstes Rezept erstellen
                     </a>
                 </div>
             @endif
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('.tag-link').forEach(el => {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const tagId = this.dataset.tagId;
+                const url = new URL('{{ route('recipes.index') }}');
+                url.searchParams.set('tag', tagId);
+                window.location.href = url.toString();
+            });
+        });
+    </script>
 </x-app-layout>

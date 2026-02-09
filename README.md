@@ -1,135 +1,125 @@
 # Simmerbox
 
-Self-Hosted Rezeptverwaltungs-Webapp. Rezepte speichern, Wochenplaene erstellen, Einkaufslisten generieren und innerhalb eines Haushalts teilen.
+Self-hosted recipe management web app. Store recipes, plan weekly meals, generate grocery lists, and share everything within your household.
 
 ## Features
 
-- **Rezepte** - CRUD mit Bild-Upload, Kategorien, Tags, Zutaten und Zubereitungsschritten
-- **JSON-Import** - Rezepte via JSON-Struktur importieren
-- **Wochenplan** - Ein Rezept pro Tag zuweisen, Wochennavigation, Druckansicht
-- **Einkaufslisten** - Auto-Generierung aus dem Wochenplan, manuelle Eintraege, Checkbox-UI
-- **Wiederkehrende Einkaeufe** - NLP-basierte Eingabe ("woechentlich am Montag", "alle 2 Wochen")
-- **Volltextsuche** - SQLite FTS5 mit BM25-Ranking und Filtern
-- **Haushalt-System** - Daten teilen via Einladungscode oder E-Mail
-- **Realtime-Sync** - Live-Updates via WebSockets (Laravel Reverb)
-- **Admin-Bereich** - Einstellungen, Benutzerverwaltung, Kategorien
-- **Berechtigungen** - Konfigurierbar (Alle / Haushalt / Ersteller)
-- **Dark Mode** - Umschaltbar, wird im Browser gespeichert
-- **Druckansicht** - Print-CSS fuer Wochenplan und Einkaufslisten
-- **Komplett auf Deutsch**
+- **Recipes** - Full CRUD with image upload, categories, tags, ingredients, and preparation steps
+- **JSON Import** - Import recipes via structured JSON
+- **Meal Planning** - Assign one recipe per day, weekly navigation, print view
+- **Grocery Lists** - Auto-generated from meal plan, manual entries, checkbox UI
+- **Recurring Groceries** - NLP-based input in German (e.g. "woechentlich am Montag", "alle 2 Wochen")
+- **Full-Text Search** - SQLite FTS5 with BM25 ranking and category/tag filters
+- **Household System** - Share data via invite code or email invitation
+- **Realtime Sync** - Live updates via WebSockets (Laravel Reverb)
+- **Admin Panel** - Settings, user management, categories
+- **Permissions** - Configurable (everyone / household / owner)
+- **Dark Mode** - Toggle with browser persistence
+- **Print Views** - Print-CSS for meal plan and grocery lists
+- **German UI** - Entire interface in German
 
 ## Tech Stack
 
-- **Backend:** Laravel 11 + PHP 8.2
-- **Datenbank:** SQLite
+- **Backend:** Laravel 11 + PHP 8.2+
+- **Database:** SQLite
 - **Frontend:** Blade + Tailwind CSS + Alpine.js
 - **Auth:** Laravel Breeze
 - **Realtime:** Laravel Reverb (WebSockets)
-- **Bilder:** Intervention Image v3 (GD)
+- **Images:** Intervention Image v3 (GD driver)
 - **Deployment:** Docker / Coolify
 
-## Installation (Lokal)
+## Local Setup
 
 ```bash
-# Repository klonen
 git clone https://github.com/roberteinsle/simmerbox.git
 cd simmerbox
 
-# Abhaengigkeiten installieren
 composer install
 npm install && npm run build
 
-# Umgebung einrichten
 cp .env.example .env
 php artisan key:generate
 
-# Datenbank erstellen
 touch database/database.sqlite
 php artisan migrate --seed
 
-# Storage verlinken
 php artisan storage:link
-
-# Volltextsuche indexieren
 php artisan search:reindex
 
-# Server starten
 php artisan serve
 ```
 
-Die App ist dann unter `http://localhost:8000` erreichbar.
+The app is available at `http://localhost:8000`.
 
-Der erste registrierte Benutzer kann ueber die Datenbank zum Admin gemacht werden:
+To make the first registered user an admin:
 
 ```bash
 php artisan tinker
 > App\Models\User::first()->update(['is_admin' => true]);
 ```
 
-## Installation (Docker)
+## Docker Setup
 
 ```bash
-# Repository klonen
 git clone https://github.com/roberteinsle/simmerbox.git
 cd simmerbox
 
-# App-Key generieren (einmalig)
+# Generate app key (one-time)
 echo "APP_KEY=base64:$(openssl rand -base64 32)" > .env
 
-# Container starten
 docker compose up -d --build
 ```
 
-Die App laeuft unter `http://localhost:8000`.
+The app runs at `http://localhost:8000`.
 
-### Umgebungsvariablen
+### Environment Variables
 
-| Variable | Default | Beschreibung |
+| Variable | Default | Description |
 |---|---|---|
-| `APP_KEY` | - | Laravel App-Key (erforderlich) |
-| `APP_URL` | `http://localhost:8000` | Oeffentliche URL |
-| `APP_PORT` | `8000` | HTTP-Port |
-| `REVERB_PORT` | `8080` | WebSocket-Port |
-| `REVERB_HOST` | `localhost` | WebSocket-Host |
+| `APP_KEY` | - | Laravel app key (required) |
+| `APP_URL` | `http://localhost:8000` | Public URL |
+| `APP_PORT` | `8000` | HTTP port |
+| `REVERB_PORT` | `8080` | WebSocket port |
+| `REVERB_HOST` | `localhost` | WebSocket host |
 
 ### Volumes
 
-- `db-data` - SQLite-Datenbank (persistiert Daten)
-- `storage-data` - Uploads (Rezeptbilder)
+- `db-data` - SQLite database (persistent data)
+- `storage-data` - Uploads (recipe images)
 
-## Konfiguration
+## Configuration
 
-Die meisten Einstellungen koennen ueber den **Admin-Bereich** (Zahnrad-Icon > Admin-Bereich) konfiguriert werden:
+Most settings can be configured via the **Admin Panel** (gear icon > Admin area):
 
-- **Allgemein** - App-Name, Beschreibung
-- **Authentifizierung** - Registrierung offen oder nur per Einladung
-- **Berechtigungen** - Wer darf Rezepte ansehen/bearbeiten/loeschen
-- **Wochenplan** - Standard-Portionen, Wochenstart
-- **Upload** - Max. Bildgroesse
-- **E-Mail** - Absender-Konfiguration
+- **General** - App name, description
+- **Authentication** - Open registration or invite-only
+- **Permissions** - Who can view/edit/delete recipes
+- **Meal Plan** - Default portions, week start day
+- **Upload** - Max image size
+- **Email** - Sender configuration
 
-## Wiederkehrende Einkaeufe
+## Recurring Groceries
 
-Das System versteht deutsche Wiederholungsmuster:
+The system understands German recurrence patterns:
 
-| Eingabe | Ergebnis |
+| Input | Result |
 |---|---|
-| `Milch, 1L, taeglich` | Jeden Tag |
-| `Brot, 1, woechentlich am Montag` | Jeden Montag |
-| `Kaese, 200g, alle 2 Wochen am Freitag` | Alle 2 Wochen freitags |
-| `Waschmittel, 1, monatlich am 1.` | Am 1. jedes Monats |
+| `Milch, 1L, taeglich` | Every day |
+| `Brot, 1, woechentlich am Montag` | Every Monday |
+| `Kaese, 200g, alle 2 Wochen am Freitag` | Every 2 weeks on Friday |
+| `Waschmittel, 1, monatlich am 1.` | 1st of every month |
 
 ## Scheduled Commands
 
-Fuer wiederkehrende Einkaeufe muss der Laravel Scheduler laufen:
+For recurring groceries, the Laravel scheduler must be running:
 
 ```bash
-# Crontab (lokal)
-* * * * * cd /pfad/zu/simmerbox && php artisan schedule:run >> /dev/null 2>&1
+# Crontab (local)
+* * * * * cd /path/to/simmerbox && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Im Docker-Container laeuft der Scheduler automatisch via Supervisor.
+In the Docker container, the scheduler runs automatically via Supervisor.
 
-## Lizenz
+## License
 
 MIT

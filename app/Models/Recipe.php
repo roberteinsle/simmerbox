@@ -12,6 +12,17 @@ class Recipe extends Model
 {
     use HasFactory;
 
+    public $incrementing = false;
+
+    protected static function booted(): void
+    {
+        static::creating(function (Recipe $recipe) {
+            if (!$recipe->id) {
+                $recipe->id = (int) (microtime(true) * 1000);
+            }
+        });
+    }
+
     protected $fillable = [
         'household_id',
         'user_id',

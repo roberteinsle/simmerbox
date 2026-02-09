@@ -6,7 +6,7 @@
             </h2>
             <div class="flex gap-2">
                 @can('update', $recipe)
-                    <a href="{{ route('recipes.edit', $recipe) }}" class="inline-flex items-center px-4 py-2 bg-orange-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-orange-600 transition">
+                    <a href="{{ route('recipes.edit', $recipe) }}" class="inline-flex items-center px-4 py-2 bg-olive-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-olive-600 transition">
                         Bearbeiten
                     </a>
                 @endcan
@@ -36,7 +36,7 @@
                 <div class="p-6">
                     <!-- Meta Info -->
                     <div class="flex flex-wrap gap-3 mb-4">
-                        <span class="inline-block px-3 py-1 text-sm font-medium bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 rounded-full">{{ $recipe->category->name }}</span>
+                        <span class="inline-block px-3 py-1 text-sm font-medium bg-olive-100 dark:bg-olive-900 text-olive-700 dark:text-olive-300 rounded-full">{{ $recipe->category->name }}</span>
 
                         @foreach($recipe->tags as $tag)
                             <span class="inline-block px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">{{ $tag->name }}</span>
@@ -90,7 +90,7 @@
                         <ol class="space-y-4">
                             @foreach($recipe->preparationSteps as $step)
                                 <li class="flex gap-4">
-                                    <span class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-semibold text-sm">{{ $step->step_number }}</span>
+                                    <span class="flex-shrink-0 w-8 h-8 bg-olive-500 text-white rounded-full flex items-center justify-center font-semibold text-sm">{{ $step->step_number }}</span>
                                     <p class="text-gray-700 dark:text-gray-300 pt-1">{{ $step->instruction }}</p>
                                 </li>
                             @endforeach
@@ -98,6 +98,29 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Wochenplan Schnellzuweisung --}}
+            @if(count($freeDays) > 0)
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 mt-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                        <svg class="w-5 h-5 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        In den Wochenplan eintragen
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($freeDays as $day)
+                            <form method="POST" action="{{ route('meal-plan.store') }}">
+                                @csrf
+                                <input type="hidden" name="recipe_id" value="{{ $recipe->id }}">
+                                <input type="hidden" name="date" value="{{ $day['date'] }}">
+                                <button type="submit" class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition {{ $day['isToday'] ? 'bg-olive-500 text-white hover:bg-olive-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-olive-100 dark:hover:bg-olive-900 hover:text-olive-700 dark:hover:text-olive-300 border border-gray-200 dark:border-gray-600' }}">
+                                    {{ $day['label'] }}
+                                </button>
+                            </form>
+                        @endforeach
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Naechste 5 freie Tage</p>
+                </div>
+            @endif
 
             <div class="mt-4">
                 <a href="{{ route('recipes.index') }}" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">&larr; Zurueck zur Uebersicht</a>
