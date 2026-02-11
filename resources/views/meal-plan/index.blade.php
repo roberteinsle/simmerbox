@@ -29,10 +29,7 @@
                     Vorherige
                 </a>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {{ $weekLabel }}
-                    <span class="text-sm font-normal text-gray-500 dark:text-gray-400 block sm:inline sm:ml-2">
-                        {{ $monday->format('d.m.') }} - {{ $sunday->format('d.m.Y') }}
-                    </span>
+                    {{ $monday->format('d.m.') }} - {{ $sunday->format('d.m.Y') }}
                 </h3>
                 <a href="{{ route('meal-plan.index', ['week' => $nextWeek]) }}" class="inline-flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                     Naechste

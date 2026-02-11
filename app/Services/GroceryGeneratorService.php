@@ -14,11 +14,11 @@ class GroceryGeneratorService
      * Generiert eine Einkaufsliste aus dem Wochenplan.
      * Gleiche Zutaten werden zusammengefasst und Mengen addiert.
      */
-    public function generateFromMealPlan(int $householdId, Carbon $monday): GroceryList
+    public function generateFromMealPlan(int $householdId, Carbon $weekStart): GroceryList
     {
-        $sunday = $monday->copy()->endOfWeek(Carbon::SUNDAY);
+        $weekEnd = $weekStart->copy()->addDays(6);
 
-        return DB::transaction(function () use ($householdId, $monday, $sunday) {
+        return DB::transaction(function () use ($householdId, $weekStart, $weekEnd) {
             // Vorherige aktive Listen fuer diesen Haushalt deaktivieren
             GroceryList::where('household_id', $householdId)
                 ->where('is_active', true)
@@ -27,15 +27,15 @@ class GroceryGeneratorService
             // Neue Liste erstellen
             $groceryList = GroceryList::create([
                 'household_id' => $householdId,
-                'name' => 'KW ' . $monday->isoWeek() . ' / ' . $monday->year,
-                'week_start' => $monday->toDateString(),
-                'week_end' => $sunday->toDateString(),
+                'name' => 'KW ' . $weekStart->isoWeek() . ' / ' . $weekStart->year,
+                'week_start' => $weekStart->toDateString(),
+                'week_end' => $weekEnd->toDateString(),
                 'is_active' => true,
             ]);
 
             // Alle Meal Plans der Woche mit Zutaten laden
             $mealPlans = MealPlan::where('household_id', $householdId)
-                ->whereBetween('date', [$monday->toDateString(), $sunday->toDateString()])
+                ->whereBetween('date', [$weekStart->toDateString(), $weekEnd->toDateString()])
                 ->with('recipe.ingredients')
                 ->get();
 
@@ -48,6 +48,11 @@ class GroceryGeneratorService
                 }
 
                 foreach ($mealPlan->recipe->ingredients as $ingredient) {
+                    // Nur "einkauf" und ungetaggte Zutaten auf die Liste
+                    if ($ingredient->source && $ingredient->source !== 'einkauf') {
+                        continue;
+                    }
+
                     $key = mb_strtolower(trim($ingredient->name)) . '|' . mb_strtolower(trim($ingredient->unit ?? ''));
 
                     if (isset($aggregated[$key])) {
@@ -73,8 +78,8 @@ class GroceryGeneratorService
             // Wiederkehrende Einkaeufe hinzufuegen (faellig in dieser Woche)
             $recurringItems = RecurringGrocery::where('household_id', $householdId)
                 ->where('is_active', true)
-                ->where(function ($q) use ($monday, $sunday) {
-                    $q->whereBetween('next_occurrence', [$monday->toDateString(), $sunday->toDateString()])
+                ->where(function ($q) use ($weekStart, $weekEnd) {
+                    $q->whereBetween('next_occurrence', [$weekStart->toDateString(), $weekEnd->toDateString()])
                         ->orWhereNull('next_occurrence');
                 })
                 ->get();

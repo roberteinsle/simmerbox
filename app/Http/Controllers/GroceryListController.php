@@ -51,19 +51,21 @@ class GroceryListController extends Controller
         $this->authorize('create', GroceryList::class);
 
         $user = auth()->user();
+        $weekStartDay = $user->bio_box_day ?? Carbon::MONDAY;
 
-        // Woche bestimmen (aus Wochenplan-Kontext oder aktuelle Woche)
+        // Woche bestimmen (Bio-Kiste-Tag als Wochenstart)
         if ($request->filled('week')) {
             try {
-                $monday = Carbon::parse($request->input('week'))->startOfWeek(Carbon::MONDAY);
+                $weekStart = Carbon::parse($request->input('week'));
+                $weekStart = $this->previousOrSame($weekStart, $weekStartDay);
             } catch (\Exception $e) {
-                $monday = Carbon::now()->startOfWeek(Carbon::MONDAY);
+                $weekStart = $this->previousOrSame(Carbon::today(), $weekStartDay);
             }
         } else {
-            $monday = Carbon::now()->startOfWeek(Carbon::MONDAY);
+            $weekStart = $this->previousOrSame(Carbon::today(), $weekStartDay);
         }
 
-        $groceryList = $generator->generateFromMealPlan($user->household_id, $monday);
+        $groceryList = $generator->generateFromMealPlan($user->household_id, $weekStart);
 
         $itemCount = $groceryList->groceryItems()->count();
 
@@ -212,5 +214,14 @@ class GroceryListController extends Controller
         }
 
         return back()->with('success', "{$added} Zutaten zur Einkaufsliste hinzugefuegt.");
+    }
+
+    private function previousOrSame(Carbon $date, int $targetDay): Carbon
+    {
+        $date = $date->copy();
+        while ($date->dayOfWeek !== $targetDay) {
+            $date->subDay();
+        }
+        return $date;
     }
 }

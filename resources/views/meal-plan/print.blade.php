@@ -18,22 +18,6 @@
                     <div class="ml-4">
                         <h3 class="font-medium text-gray-800 text-base">{{ $mealPlan->recipe->title }}</h3>
                         <span class="text-sm text-gray-500">{{ $mealPlan->recipe->category->name }} | {{ $mealPlan->recipe->portions }} Portionen</span>
-
-                        @if($mealPlan->recipe->ingredients->count() > 0)
-                            <div class="mt-2">
-                                <span class="text-sm font-medium text-gray-600">Zutaten:</span>
-                                <ul class="text-sm text-gray-600 mt-1 columns-2 gap-4">
-                                    @foreach($mealPlan->recipe->ingredients as $ingredient)
-                                        <li class="break-inside-avoid">
-                                            @if($ingredient->amount)
-                                                {{ rtrim(rtrim(number_format($ingredient->amount, 2, ',', '.'), '0'), ',') }} {{ $ingredient->unit }}
-                                            @endif
-                                            {{ $ingredient->name }}
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
                     </div>
                 @else
                     <p class="ml-4 text-sm text-gray-400 italic">Kein Rezept geplant</p>
