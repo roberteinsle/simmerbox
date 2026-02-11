@@ -57,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/meal-plan/print', [MealPlanController::class, 'print'])->name('meal-plan.print');
 
         // Groceries
+        Route::post('/recipes/{recipe}/add-to-groceries', [GroceryListController::class, 'addFromRecipe'])->name('recipes.add-to-groceries');
         Route::get('/groceries', [GroceryListController::class, 'index'])->name('groceries.index');
         Route::post('/groceries/generate', [GroceryListController::class, 'generate'])->name('groceries.generate');
         Route::post('/groceries/add-item', [GroceryListController::class, 'addItem'])->name('groceries.add-item');

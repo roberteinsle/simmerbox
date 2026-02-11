@@ -36,11 +36,13 @@ class RecipeExportImportController extends Controller
                 'portions' => $recipe->portions,
                 'preparation_time' => $recipe->preparation_time,
                 'tags' => $recipe->tags->pluck('name')->toArray(),
-                'ingredients' => $recipe->ingredients->map(fn ($i) => [
+                'ingredients' => $recipe->ingredients->map(fn ($i) => array_filter([
                     'name' => $i->name,
                     'amount' => $i->amount,
                     'unit' => $i->unit,
-                ])->toArray(),
+                    'source' => $i->source,
+                    'note' => $i->note,
+                ], fn ($v) => $v !== null))->toArray(),
                 'steps' => $recipe->preparationSteps->map(fn ($s) => [
                     'instruction' => $s->instruction,
                 ])->toArray(),
@@ -155,6 +157,8 @@ class RecipeExportImportController extends Controller
                         'name' => $ingredient['name'],
                         'amount' => $ingredient['amount'] ?? null,
                         'unit' => $ingredient['unit'] ?? null,
+                        'source' => $ingredient['source'] ?? null,
+                        'note' => $ingredient['note'] ?? null,
                         'sort_order' => $index,
                     ]);
                 }

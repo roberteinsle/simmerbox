@@ -72,6 +72,19 @@
                         <ul class="space-y-2">
                             @foreach($recipe->ingredients as $ingredient)
                                 <li class="flex items-center gap-2 text-gray-700 dark:text-gray-300 py-1 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                                    @if($ingredient->source)
+                                        <span class="flex-shrink-0 w-6 text-center" title="{{ $ingredient->source === 'bio-kiste' ? 'Bio-Kiste' : ($ingredient->source === 'einkauf' ? 'Einkauf' : 'Vorrat') }}">
+                                            @if($ingredient->source === 'bio-kiste')
+                                                <span class="text-base">🥬</span>
+                                            @elseif($ingredient->source === 'einkauf')
+                                                <span class="text-base">🛒</span>
+                                            @elseif($ingredient->source === 'vorrat')
+                                                <span class="text-base">🏠</span>
+                                            @endif
+                                        </span>
+                                    @else
+                                        <span class="flex-shrink-0 w-6"></span>
+                                    @endif
                                     <span class="font-medium min-w-[80px] text-right">
                                         @if($ingredient->amount)
                                             {{ rtrim(rtrim(number_format($ingredient->amount, 2, ',', '.'), '0'), ',') }}
@@ -79,9 +92,39 @@
                                         @endif
                                     </span>
                                     <span>{{ $ingredient->name }}</span>
+                                    @if($ingredient->note)
+                                        <span class="text-sm text-gray-400 dark:text-gray-500">({{ $ingredient->note }})</span>
+                                    @endif
                                 </li>
                             @endforeach
                         </ul>
+                        @if($recipe->ingredients->whereNotNull('source')->isNotEmpty())
+                            <div class="flex gap-4 mt-3 text-xs text-gray-400 dark:text-gray-500">
+                                <span>🥬 Bio-Kiste</span>
+                                <span>🛒 Einkauf</span>
+                                <span>🏠 Vorrat</span>
+                            </div>
+                        @endif
+
+                        @if(auth()->user()->household_id)
+                            <div class="flex flex-wrap gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                <form method="POST" action="{{ route('recipes.add-to-groceries', $recipe) }}">
+                                    @csrf
+                                    <input type="hidden" name="source" value="einkauf">
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-olive-500 text-white rounded-md hover:bg-olive-600 transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" /></svg>
+                                        🛒 Einkauf auf die Liste
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('recipes.add-to-groceries', $recipe) }}">
+                                    @csrf
+                                    <input type="hidden" name="source" value="alle">
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition">
+                                        Alle Zutaten auf die Liste
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Preparation Steps -->

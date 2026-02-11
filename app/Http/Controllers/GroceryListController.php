@@ -6,6 +6,7 @@ use App\Events\GroceryItemToggled;
 use App\Events\GroceryListUpdated;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
+use App\Models\Recipe;
 use App\Services\GroceryGeneratorService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -155,5 +156,61 @@ class GroceryListController extends Controller
         $groceryList->load(['groceryItems' => fn ($q) => $q->orderBy('is_checked')->orderBy('sort_order')]);
 
         return view('groceries.print', compact('groceryList'));
+    }
+
+    public function addFromRecipe(Request $request, Recipe $recipe): RedirectResponse
+    {
+        $user = auth()->user();
+        $householdId = $user->household_id;
+
+        // Aktive Liste holen oder neue erstellen
+        $groceryList = GroceryList::where('household_id', $householdId)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$groceryList) {
+            $groceryList = GroceryList::create([
+                'household_id' => $householdId,
+                'name' => 'Einkaufsliste',
+                'is_active' => true,
+            ]);
+        }
+
+        $this->authorize('modify', $groceryList);
+
+        $recipe->load('ingredients');
+
+        // Filter: nur "einkauf"-Zutaten oder alle (wenn source nicht gesetzt)
+        $sourceFilter = $request->input('source', 'einkauf');
+        $ingredients = $recipe->ingredients;
+
+        if ($sourceFilter === 'einkauf') {
+            $ingredients = $ingredients->filter(fn ($i) => $i->source === 'einkauf' || $i->source === null);
+        }
+        // 'alle' = keine Filterung
+
+        $maxSort = $groceryList->groceryItems()->max('sort_order') ?? -1;
+        $added = 0;
+
+        foreach ($ingredients as $ingredient) {
+            $groceryList->groceryItems()->create([
+                'name' => $ingredient->name,
+                'amount' => $ingredient->amount,
+                'unit' => $ingredient->unit,
+                'is_checked' => false,
+                'is_manual' => false,
+                'source_recipe_ids' => [$recipe->id],
+                'sort_order' => ++$maxSort,
+            ]);
+            $added++;
+        }
+
+        broadcast(new GroceryListUpdated($householdId, 'items_added'))->toOthers();
+
+        if ($added === 0) {
+            return back()->with('info', 'Keine passenden Zutaten zum Hinzufuegen gefunden.');
+        }
+
+        return back()->with('success', "{$added} Zutaten zur Einkaufsliste hinzugefuegt.");
     }
 }

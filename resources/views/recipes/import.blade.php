@@ -13,16 +13,18 @@
 
                     <div class="mb-4">
                         <label for="json" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">JSON einfuegen</label>
-                        <textarea name="json" id="json" rows="18" placeholder='{{ '{
+                        <textarea name="json" id="json" rows="20" placeholder='{{ '{
   "title": "Spaghetti Bolognese",
   "description": "Klassiker der italienischen Kueche",
   "category": "Hauptgericht",
-  "portions": 4,
-  "preparation_time": 45,
+  "servings": 4,
+  "prep_time_minutes": 45,
   "tags": ["italienisch", "pasta"],
   "ingredients": [
-    {"name": "Spaghetti", "amount": 500, "unit": "g"},
-    {"name": "Hackfleisch", "amount": 400, "unit": "g"}
+    {"name": "Spaghetti", "amount": 500, "unit": "g", "source": "einkauf"},
+    {"name": "Karotten", "amount": 2, "unit": "Stück", "source": "bio-kiste"},
+    {"name": "Olivenoel", "amount": 2, "unit": "EL", "source": "vorrat"},
+    {"name": "Hackfleisch", "amount": 400, "unit": "g", "source": "einkauf", "note": "gemischt"}
   ],
   "steps": [
     "Wasser zum Kochen bringen.",
@@ -47,10 +49,21 @@
                             <li><strong>title</strong> (erforderlich) - Name des Rezepts</li>
                             <li><strong>description</strong> (optional) - Kurze Beschreibung</li>
                             <li><strong>category</strong> (optional) - z.B. "Hauptgericht", "Dessert"</li>
-                            <li><strong>portions</strong> (optional, Standard: 4) - Anzahl Portionen</li>
-                            <li><strong>preparation_time</strong> (optional) - Zubereitungszeit in Minuten</li>
+                            <li><strong>servings</strong> (optional, Standard: 4) - Anzahl Portionen</li>
+                            <li><strong>prep_time_minutes</strong> (optional) - Zubereitungszeit in Minuten</li>
                             <li><strong>tags</strong> (optional) - Array von Tags</li>
-                            <li><strong>ingredients</strong> (erforderlich) - Array mit {name, amount, unit}</li>
+                            <li><strong>ingredients</strong> (erforderlich) - Array mit:
+                                <ul class="ml-4 mt-1 space-y-0.5">
+                                    <li><strong>name</strong> - Name der Zutat</li>
+                                    <li><strong>amount</strong>, <strong>unit</strong> - Menge und Einheit</li>
+                                    <li><strong>source</strong> - Herkunft:
+                                        <span class="inline-flex items-center gap-1">🥬 <code class="text-xs bg-gray-200 dark:bg-gray-600 px-1 rounded">bio-kiste</code></span>
+                                        <span class="inline-flex items-center gap-1">🛒 <code class="text-xs bg-gray-200 dark:bg-gray-600 px-1 rounded">einkauf</code></span>
+                                        <span class="inline-flex items-center gap-1">🏠 <code class="text-xs bg-gray-200 dark:bg-gray-600 px-1 rounded">vorrat</code></span>
+                                    </li>
+                                    <li><strong>note</strong> - optionale Anmerkung</li>
+                                </ul>
+                            </li>
                             <li><strong>steps</strong> (erforderlich) - Array von Zubereitungsschritten (Strings)</li>
                         </ul>
                     </div>

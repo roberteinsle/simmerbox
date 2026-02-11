@@ -25,6 +25,8 @@ class StoreRecipeRequest extends FormRequest
             'ingredients.*.name' => ['required', 'string', 'max:255'],
             'ingredients.*.amount' => ['nullable', 'numeric', 'min:0'],
             'ingredients.*.unit' => ['nullable', 'string', 'max:50'],
+            'ingredients.*.source' => ['nullable', 'string', 'in:bio-kiste,einkauf,vorrat'],
+            'ingredients.*.note' => ['nullable', 'string', 'max:255'],
             'steps' => ['required', 'array', 'min:1'],
             'steps.*.instruction' => ['required', 'string'],
         ];

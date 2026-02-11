@@ -1,7 +1,7 @@
 @props(['recipe' => null, 'categories'])
 
 @php
-    $existingIngredients = old('ingredients', $recipe?->ingredients?->map(fn($i) => ['name' => $i->name, 'amount' => $i->amount, 'unit' => $i->unit])->toArray() ?? [['name' => '', 'amount' => '', 'unit' => '']]);
+    $existingIngredients = old('ingredients', $recipe?->ingredients?->map(fn($i) => ['name' => $i->name, 'amount' => $i->amount, 'unit' => $i->unit, 'source' => $i->source, 'note' => $i->note])->toArray() ?? [['name' => '', 'amount' => '', 'unit' => '', 'source' => '', 'note' => '']]);
     $existingSteps = old('steps', $recipe?->preparationSteps?->map(fn($s) => ['instruction' => $s->instruction])->toArray() ?? [['instruction' => '']]);
     $existingTags = old('tags', $recipe?->tags?->pluck('name')->implode(', ') ?? '');
 @endphp
@@ -10,7 +10,7 @@
     ingredients: {{ json_encode($existingIngredients) }},
     steps: {{ json_encode($existingSteps) }},
     addIngredient() {
-        this.ingredients.push({ name: '', amount: '', unit: '' });
+        this.ingredients.push({ name: '', amount: '', unit: '', source: '', note: '' });
     },
     removeIngredient(index) {
         if (this.ingredients.length > 1) this.ingredients.splice(index, 1);
@@ -76,21 +76,31 @@
         @error('ingredients') <p class="mb-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
 
         <template x-for="(ingredient, index) in ingredients" :key="index">
-            <div class="flex gap-2 mb-2 items-start">
+            <div class="flex flex-wrap gap-2 mb-2 items-start">
                 <div class="w-20">
                     <input type="number" :name="'ingredients[' + index + '][amount]'" x-model="ingredient.amount" step="0.01" min="0" placeholder="Menge" class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                 </div>
                 <div class="w-20">
                     <input type="text" :name="'ingredients[' + index + '][unit]'" x-model="ingredient.unit" placeholder="Einheit" class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                 </div>
-                <div class="flex-1">
+                <div class="flex-1 min-w-[120px]">
                     <input type="text" :name="'ingredients[' + index + '][name]'" x-model="ingredient.name" placeholder="Zutat" required class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
                 </div>
+                <div class="w-12">
+                    <select :name="'ingredients[' + index + '][source]'" x-model="ingredient.source" title="Herkunft" class="w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500 px-1">
+                        <option value="">--</option>
+                        <option value="bio-kiste">🥬</option>
+                        <option value="einkauf">🛒</option>
+                        <option value="vorrat">🏠</option>
+                    </select>
+                </div>
+                <input type="hidden" :name="'ingredients[' + index + '][note]'" x-model="ingredient.note">
                 <button type="button" @click="removeIngredient(index)" x-show="ingredients.length > 1" class="p-2 text-red-500 hover:text-red-700">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
         </template>
+        <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">🥬 Bio-Kiste &nbsp; 🛒 Einkauf &nbsp; 🏠 Vorrat</div>
     </div>
 
     <!-- Preparation Steps -->

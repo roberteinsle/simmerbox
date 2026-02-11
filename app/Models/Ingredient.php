@@ -15,6 +15,8 @@ class Ingredient extends Model
         'name',
         'amount',
         'unit',
+        'source',
+        'note',
         'sort_order',
     ];
 

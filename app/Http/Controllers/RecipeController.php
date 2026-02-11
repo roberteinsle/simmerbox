@@ -216,6 +216,8 @@ class RecipeController extends Controller
                 'name' => $ingredient['name'],
                 'amount' => $ingredient['amount'] ?? null,
                 'unit' => $ingredient['unit'] ?? null,
+                'source' => $ingredient['source'] ?? null,
+                'note' => $ingredient['note'] ?? null,
                 'sort_order' => $index,
             ]);
         }

@@ -26,15 +26,19 @@ class RecipeImportService
         return DB::transaction(function () use ($data, $userId, $householdId) {
             $category = $this->resolveCategory($data['category'] ?? null);
 
+            // Support both old and new schema field names
+            $portions = $data['portions'] ?? $data['servings'] ?? 4;
+            $prepTime = $data['preparation_time'] ?? $data['prep_time_minutes'] ?? $data['total_time_minutes'] ?? null;
+
             $recipe = Recipe::create([
                 'user_id' => $userId,
                 'household_id' => $householdId,
                 'category_id' => $category->id,
                 'title' => $data['title'],
                 'slug' => Str::slug($data['title']),
-                'description' => $data['description'] ?? null,
-                'portions' => $data['portions'] ?? 4,
-                'preparation_time' => $data['preparation_time'] ?? null,
+                'description' => $data['description'] ?? $data['notes'] ?? null,
+                'portions' => $portions,
+                'preparation_time' => $prepTime,
             ]);
 
             foreach ($data['ingredients'] as $index => $ingredient) {
@@ -42,6 +46,8 @@ class RecipeImportService
                     'name' => $ingredient['name'],
                     'amount' => $ingredient['amount'] ?? null,
                     'unit' => $ingredient['unit'] ?? null,
+                    'source' => $ingredient['source'] ?? null,
+                    'note' => $ingredient['note'] ?? null,
                     'sort_order' => $index,
                 ]);
             }
