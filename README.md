@@ -87,6 +87,74 @@ The app runs at `http://localhost:8000`.
 - `db-data` - SQLite database (persistent data)
 - `storage-data` - Uploads (recipe images)
 
+## Deploy on Coolify
+
+Simmerbox runs as a single Docker container on [Coolify](https://coolify.io/) (self-hosted PaaS).
+
+### 1. Create Resource
+
+1. In Coolify, go to your project and click **+ Add Resource**
+2. Select **Docker** > **Dockerfile**
+3. Connect your Git repository: `https://github.com/roberteinsle/simmerbox`
+4. Branch: `main`
+5. Coolify will auto-detect the `Dockerfile`
+
+### 2. Configure Volumes (CRITICAL)
+
+Under **Storages**, add two persistent volumes:
+
+| Container Path | Purpose |
+|---|---|
+| `/var/www/html/database` | SQLite database - **all your data lives here** |
+| `/var/www/html/storage/app` | Uploaded images and media |
+
+> **WARNING:** Without persistent volumes, ALL DATA IS LOST on every redeploy! The database is automatically backed up before each migration (last 5 backups kept).
+
+### 3. Set Environment Variables
+
+Under **Environment Variables**, configure:
+
+```
+APP_NAME=Simmerbox
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=base64:...
+APP_URL=http://your-server-ip:port
+APP_TIMEZONE=Europe/Berlin
+DB_CONNECTION=sqlite
+DB_DATABASE=/var/www/html/database/database.sqlite
+BROADCAST_CONNECTION=log
+SESSION_DRIVER=database
+QUEUE_CONNECTION=database
+CACHE_STORE=database
+LOG_LEVEL=warning
+```
+
+Generate `APP_KEY` locally: `php artisan key:generate --show`
+Or: `echo "base64:$(openssl rand -base64 32)"`
+
+### 4. Network / Ports
+
+- Set the exposed port to **80**
+- Coolify's built-in proxy (Traefik) handles HTTPS once you assign a domain
+
+### 5. Deploy
+
+Click **Deploy**. The build takes ~2 minutes. On first start, the container will:
+1. Create the SQLite database
+2. Run all migrations
+3. Seed default categories and settings
+
+After deployment, register the first user and make them admin via Coolify's terminal:
+
+```bash
+php /var/www/html/artisan tinker --execute="App\Models\User::first()->update(['is_admin' => true]);"
+```
+
+### Enable WebSocket (optional)
+
+To enable realtime sync (grocery list, meal plan), set `BROADCAST_CONNECTION=reverb` and enable the Reverb supervisor program in `docker/supervisord.conf` (`autostart=true`). Expose port `8080` additionally.
+
 ## Configuration
 
 Most settings can be configured via the **Admin Panel** (gear icon > Admin area):

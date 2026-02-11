@@ -72,7 +72,9 @@ RUN mkdir -p storage/app/public \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 storage bootstrap/cache database
 
-EXPOSE 80 8080
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost/up || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
