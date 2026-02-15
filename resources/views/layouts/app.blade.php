@@ -46,6 +46,10 @@
             <main>
                 {{ $slot }}
             </main>
+
+            <footer class="py-4 text-center text-xs text-gray-400 dark:text-gray-600">
+                Simmerbox v{{ config('app.version') }}
+            </footer>
         </div>
 
         @stack('scripts')

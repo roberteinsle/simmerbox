@@ -68,8 +68,13 @@ class MealPlanController extends Controller
 
         $request->validate([
             'date' => ['required', 'date'],
-            'recipe_id' => ['required', 'exists:recipes,id'],
+            'recipe_id' => ['nullable', 'exists:recipes,id'],
+            'note' => ['nullable', 'string', 'max:500'],
         ]);
+
+        if (! $request->input('recipe_id') && ! $request->input('note')) {
+            return back()->withErrors(['recipe_id' => 'Bitte ein Rezept oder einen Freitext angeben.']);
+        }
 
         $user = auth()->user();
 
@@ -79,7 +84,8 @@ class MealPlanController extends Controller
                 'date' => $request->input('date'),
             ],
             [
-                'recipe_id' => $request->input('recipe_id'),
+                'recipe_id' => $request->input('recipe_id') ?: null,
+                'note' => $request->input('recipe_id') ? null : $request->input('note'),
             ]
         );
 

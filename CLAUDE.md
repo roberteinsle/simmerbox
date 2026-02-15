@@ -92,3 +92,32 @@ docker compose down                  # Stop
 - **Admin settings form** uses array field names (`settings[key]`) to avoid underscore-to-dot conversion issues
 - **GD extension** required for image processing - `ImageService` uses lazy init as fallback
 - **FTS5 sync** happens via `RecipeObserver` and `IngredientObserver` - always run `search:reindex` after bulk data changes
+
+## Versioning
+
+This project uses a timestamp-hash versioning scheme for every commit.
+
+### Format
+
+```
+1.0.0-<hash>
+```
+
+Where `<hash>` is the first 6 characters of the SHA-256 hash of the current timestamp (`YYYYMMDDHHmm`).
+
+### Generation
+
+Before every commit, generate the version string:
+
+```bash
+HASH=$(echo -n "$(date +%Y%m%d%H%M)" | sha256sum | cut -c1-6)
+VERSION="1.0.0-${HASH}"
+```
+
+### Rules
+
+- Always generate a fresh version string before committing.
+- Store the version in the project's designated version file (e.g. `VERSION`, `package.json`, or equivalent).
+- Use the generated version string as part of the commit message: `release: 1.0.0-<hash>`.
+- The prefix `1.0.0` stays fixed unless manually updated by the developer.
+- Never reuse or hardcode a previous hash.

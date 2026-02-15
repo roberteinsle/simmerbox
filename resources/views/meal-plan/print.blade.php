@@ -14,10 +14,14 @@
                     <span class="text-sm text-gray-500">{{ $day['date']->format('d.m.Y') }}</span>
                 </div>
 
-                @if($mealPlan)
+                @if($mealPlan && $mealPlan->recipe_id)
                     <div class="ml-4">
                         <h3 class="font-medium text-gray-800 text-base">{{ $mealPlan->recipe->title }}</h3>
                         <span class="text-sm text-gray-500">{{ $mealPlan->recipe->category->name }} | {{ $mealPlan->recipe->portions }} Portionen</span>
+                    </div>
+                @elseif($mealPlan && $mealPlan->note)
+                    <div class="ml-4">
+                        <p class="text-base text-gray-800">{{ $mealPlan->note }}</p>
                     </div>
                 @else
                     <p class="ml-4 text-sm text-gray-400 italic">Kein Rezept geplant</p>
