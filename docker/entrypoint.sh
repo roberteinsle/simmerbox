@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+echo "[entrypoint] Starting Simmerbox initialization..."
+
 DB_PATH=/var/www/html/database/database.sqlite
 
 # Ensure correct permissions on storage and database directories
@@ -13,6 +15,7 @@ if [ ! -f "$DB_PATH" ]; then
     echo "[entrypoint] Creating new SQLite database..."
     touch "$DB_PATH"
     chown www-data:www-data "$DB_PATH"
+    chmod 664 "$DB_PATH"
 fi
 
 # Backup database before migration (safety net)
@@ -29,16 +32,22 @@ echo "[entrypoint] Running migrations..."
 php /var/www/html/artisan migrate --force
 
 # Seed defaults if not already seeded
+echo "[entrypoint] Seeding defaults..."
 php /var/www/html/artisan db:seed --class=CategorySeeder --force 2>/dev/null || true
 php /var/www/html/artisan db:seed --class=DefaultSettingsSeeder --force 2>/dev/null || true
+
+# Build search index
+echo "[entrypoint] Building search index..."
+php /var/www/html/artisan search:reindex 2>/dev/null || true
 
 # Create storage link
 php /var/www/html/artisan storage:link --force 2>/dev/null || true
 
 # Cache config and routes
+echo "[entrypoint] Caching config and routes..."
 php /var/www/html/artisan config:cache
 php /var/www/html/artisan route:cache
 php /var/www/html/artisan view:cache
 
-echo "[entrypoint] Ready."
+echo "[entrypoint] Ready. Starting supervisor..."
 exec "$@"
