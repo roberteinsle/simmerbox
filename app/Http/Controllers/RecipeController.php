@@ -193,6 +193,20 @@ class RecipeController extends Controller
         });
     }
 
+    public function print(Recipe $recipe): View
+    {
+        $this->authorize('view', $recipe);
+
+        $recipe->load([
+            'category',
+            'user',
+            'ingredients' => fn ($q) => $q->orderBy('sort_order'),
+            'preparationSteps' => fn ($q) => $q->orderBy('step_number'),
+        ]);
+
+        return view('recipes.print', compact('recipe'));
+    }
+
     public function destroy(Recipe $recipe): RedirectResponse
     {
         $this->authorize('delete', $recipe);

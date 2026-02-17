@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Recipes
     Route::resource('recipes', RecipeController::class);
+    Route::get('/recipes/{recipe}/print', [RecipeController::class, 'print'])->name('recipes.print');
 
     // Recipe Import/Export
     Route::get('/recipes-import', [RecipeImportController::class, 'create'])->name('recipes.import');
