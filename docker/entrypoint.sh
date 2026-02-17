@@ -3,6 +3,11 @@ set -e
 
 DB_PATH=/var/www/html/database/database.sqlite
 
+# Ensure correct permissions on storage and database directories
+echo "[entrypoint] Setting permissions..."
+chown -R www-data:www-data /var/www/html/storage /var/www/html/database
+chmod -R 775 /var/www/html/storage /var/www/html/database
+
 # Create SQLite database if it doesn't exist
 if [ ! -f "$DB_PATH" ]; then
     echo "[entrypoint] Creating new SQLite database..."
