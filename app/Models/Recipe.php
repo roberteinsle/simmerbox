@@ -33,7 +33,15 @@ class Recipe extends Model
         'portions',
         'preparation_time',
         'image_path',
+        'bio_kiste_date',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'bio_kiste_date' => 'date',
+        ];
+    }
 
     public function user(): BelongsTo
     {

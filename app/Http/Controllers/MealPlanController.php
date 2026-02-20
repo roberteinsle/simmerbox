@@ -43,11 +43,18 @@ class MealPlanController extends Controller
 
         $mealPlans = MealPlan::where('household_id', $householdId)
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->with('recipe.category')
+            ->with(['recipe' => fn ($q) => $q->select('id', 'title', 'category_id', 'image_path'), 'recipe.category'])
             ->get()
             ->keyBy(fn ($mp) => $mp->date->toDateString());
 
-        $recipes = Recipe::orderBy('title')->get(['id', 'title', 'category_id']);
+        $bioKisteRecipes = Recipe::whereNotNull('bio_kiste_date')
+            ->where('bio_kiste_date', $startDate->toDateString())
+            ->orderBy('title')
+            ->get(['id', 'title', 'category_id', 'image_path']);
+
+        $allRecipes = Recipe::orderBy('title')->get(['id', 'title', 'category_id', 'image_path']);
+
+        $recipes = $bioKisteRecipes->isNotEmpty() ? $bioKisteRecipes : $allRecipes;
 
         $prevWeek = $startDate->copy()->subWeek()->toDateString();
         $nextWeek = $startDate->copy()->addWeek()->toDateString();
@@ -56,9 +63,11 @@ class MealPlanController extends Controller
         $monday = $startDate;
         $sunday = $endDate;
 
+        $hasBioKiste = $bioKisteRecipes->isNotEmpty();
+
         return view('meal-plan.index', compact(
-            'days', 'mealPlans', 'recipes', 'monday', 'sunday',
-            'prevWeek', 'nextWeek', 'weekLabel'
+            'days', 'mealPlans', 'recipes', 'allRecipes', 'hasBioKiste',
+            'monday', 'sunday', 'prevWeek', 'nextWeek', 'weekLabel'
         ));
     }
 

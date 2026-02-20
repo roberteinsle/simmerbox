@@ -19,6 +19,7 @@
   "category": "Hauptgericht",
   "servings": 4,
   "prep_time_minutes": 45,
+  "bio_kiste": true,
   "tags": ["italienisch", "pasta"],
   "ingredients": [
     {"name": "Spaghetti", "amount": 500, "unit": "g", "source": "einkauf"},
@@ -64,6 +65,7 @@
                                     <li><strong>note</strong> - optionale Anmerkung</li>
                                 </ul>
                             </li>
+                            <li><strong>bio_kiste</strong> (optional) - <code class="text-xs bg-gray-200 dark:bg-gray-600 px-1 rounded">true</code> markiert das Rezept als Bio-Kiste-Rezept der aktuellen Woche</li>
                             <li><strong>steps</strong> (erforderlich) - Array von Zubereitungsschritten (Strings)</li>
                         </ul>
                     </div>

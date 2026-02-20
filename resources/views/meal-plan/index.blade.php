@@ -55,6 +55,9 @@
                         <div class="p-3 min-h-[120px] flex flex-col">
                             @if($mealPlan && $mealPlan->recipe_id)
                                 <a href="{{ route('recipes.show', $mealPlan->recipe) }}" class="flex-1 group">
+                                    @if($mealPlan->recipe->image_path)
+                                        <img src="{{ asset('storage/' . $mealPlan->recipe->image_path) }}" alt="{{ $mealPlan->recipe->title }}" class="w-full h-24 object-cover rounded-md mb-2">
+                                    @endif
                                     <div class="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-olive-500 transition">
                                         {{ $mealPlan->recipe->title }}
                                     </div>
@@ -98,18 +101,32 @@
                                     </div>
 
                                     <!-- Recipe Selector -->
-                                    <div x-show="mode === 'recipe'" x-cloak class="mt-2">
+                                    <div x-show="mode === 'recipe'" x-cloak class="mt-2" x-data="{ showAll: {{ $hasBioKiste ? 'false' : 'true' }} }">
                                         <form method="POST" action="{{ route('meal-plan.store') }}">
                                             @csrf
                                             <input type="hidden" name="date" value="{{ $dateStr }}">
-                                            <select name="recipe_id" onchange="this.form.submit()" class="w-full text-xs border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
-                                                <option value="">Waehle...</option>
+                                            <select x-show="!showAll" name="recipe_id" onchange="this.form.submit()" class="w-full text-xs border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                                                <option value="">🥬 Bio-Kiste...</option>
                                                 @foreach($recipes as $recipe)
                                                     <option value="{{ $recipe->id }}">{{ $recipe->title }}</option>
                                                 @endforeach
                                             </select>
+                                            <select x-show="showAll" name="recipe_id" onchange="this.form.submit()" class="w-full text-xs border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                                                <option value="">Alle Rezepte...</option>
+                                                @foreach($allRecipes as $recipe)
+                                                    <option value="{{ $recipe->id }}">{{ $recipe->title }}</option>
+                                                @endforeach
+                                            </select>
                                         </form>
-                                        <button @click="mode = null" class="mt-1 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">Abbrechen</button>
+                                        <div class="flex justify-between mt-1">
+                                            <button @click="mode = null" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">Abbrechen</button>
+                                            @if($hasBioKiste)
+                                                <button @click="showAll = !showAll" class="text-xs text-olive-500 hover:text-olive-600">
+                                                    <span x-show="!showAll">Alle anzeigen</span>
+                                                    <span x-show="showAll">🥬 Bio-Kiste</span>
+                                                </button>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     <!-- Note Input -->

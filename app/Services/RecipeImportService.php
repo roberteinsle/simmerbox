@@ -8,6 +8,7 @@ use App\Models\Tag;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class RecipeImportService
 {
@@ -30,6 +31,13 @@ class RecipeImportService
             $portions = $data['portions'] ?? $data['servings'] ?? 4;
             $prepTime = $data['preparation_time'] ?? $data['prep_time_minutes'] ?? $data['total_time_minutes'] ?? null;
 
+            $bioKisteDate = null;
+            if (!empty($data['bio_kiste'])) {
+                $user = \App\Models\User::find($userId);
+                $weekStartDay = $user->bio_box_day ?? Carbon::MONDAY;
+                $bioKisteDate = $this->previousOrSame(Carbon::today(), $weekStartDay);
+            }
+
             $recipe = Recipe::create([
                 'user_id' => $userId,
                 'household_id' => $householdId,
@@ -39,6 +47,7 @@ class RecipeImportService
                 'description' => $data['description'] ?? $data['notes'] ?? null,
                 'portions' => $portions,
                 'preparation_time' => $prepTime,
+                'bio_kiste_date' => $bioKisteDate,
             ]);
 
             foreach ($data['ingredients'] as $index => $ingredient) {
@@ -101,6 +110,15 @@ class RecipeImportService
         if (!empty($errors)) {
             throw ValidationException::withMessages($errors);
         }
+    }
+
+    private function previousOrSame(Carbon $date, int $targetDay): Carbon
+    {
+        $date = $date->copy();
+        while ($date->dayOfWeek !== $targetDay) {
+            $date->subDay();
+        }
+        return $date;
     }
 
     protected function resolveCategory(?string $categoryName): Category
