@@ -28,6 +28,7 @@ class ImageService
 
         if (!$this->gdAvailable()) {
             Storage::disk('public')->putFileAs($directory, $file, basename($path));
+            Storage::disk('public')->putFileAs($directory . '/thumbs', $file, basename($path));
             return $path;
         }
 
