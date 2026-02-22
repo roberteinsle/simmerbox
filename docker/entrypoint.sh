@@ -7,7 +7,7 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG" 2>/dev/null || true
 }
 
-DB_PATH=/var/www/html/database/database.sqlite
+DB_PATH=/var/www/html/storage/app/database.sqlite
 
 # Ensure directories exist
 mkdir -p \
@@ -27,8 +27,8 @@ log "APP_KEY set: $([ -n "$APP_KEY" ] && echo yes || echo NO)"
 
 # Set permissions
 log "Setting permissions..."
-chmod -R 777 /var/www/html/storage /var/www/html/database /var/www/html/bootstrap/cache 2>/dev/null || true
-chown -R www-data:www-data /var/www/html/storage /var/www/html/database /var/www/html/bootstrap/cache 2>/dev/null || true
+chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true
 
 # Create SQLite database if it doesn't exist
 if [ ! -f "$DB_PATH" ]; then
