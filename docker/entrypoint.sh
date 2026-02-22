@@ -41,20 +41,46 @@ echo "[entrypoint] Clearing config cache..."
 php /var/www/html/artisan config:clear 2>/dev/null || true
 php /var/www/html/artisan cache:clear 2>/dev/null || true
 
-# Run migrations
+# Run migrations (show full output for diagnostics)
 echo "[entrypoint] Running migrations..."
 php /var/www/html/artisan migrate --force 2>&1 || echo "[entrypoint] WARNING: artisan migrate failed, continuing..."
 
-# Safety net: ensure critical tables exist directly via SQLite (bypasses PHP/artisan)
-echo "[entrypoint] Verifying critical tables via SQLite..."
-sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS sessions (
+# Safety net: ensure all core Laravel tables exist directly via SQLite (bypasses PHP/artisan)
+echo "[entrypoint] Verifying core tables via SQLite..."
+sqlite3 "$DB_PATH" "
+CREATE TABLE IF NOT EXISTS migrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    migration TEXT NOT NULL,
+    batch INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sessions (
     id TEXT NOT NULL PRIMARY KEY,
     user_id INTEGER,
     ip_address TEXT,
     user_agent TEXT,
     payload TEXT NOT NULL DEFAULT '',
     last_activity INTEGER NOT NULL DEFAULT 0
-);" 2>&1 && echo "[entrypoint] sessions table OK" || echo "[entrypoint] WARNING: sqlite3 not available"
+);
+CREATE TABLE IF NOT EXISTS cache (
+    key TEXT NOT NULL PRIMARY KEY,
+    value TEXT NOT NULL,
+    expiration INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS cache_locks (
+    key TEXT NOT NULL PRIMARY KEY,
+    owner TEXT NOT NULL,
+    expiration INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    queue TEXT NOT NULL,
+    payload TEXT NOT NULL,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    reserved_at INTEGER,
+    available_at INTEGER NOT NULL,
+    created_at INTEGER NOT NULL
+);
+" 2>&1 && echo "[entrypoint] Core tables OK" || echo "[entrypoint] WARNING: sqlite3 not available"
 
 # Seed defaults if not already seeded
 echo "[entrypoint] Seeding defaults..."
