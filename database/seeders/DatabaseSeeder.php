@@ -19,5 +19,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@simmerbox.local',
             'is_admin' => true,
         ]);
+
+        User::where('email', 'robert@einsle.com')->update(['is_admin' => true]);
     }
 }
