@@ -55,20 +55,19 @@ rm -f /var/www/html/bootstrap/cache/services.php
 # Check database state
 log "Checking database state..."
 HAS_USERS=$(sqlite3 "$DB_PATH" "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='users';" 2>/dev/null || echo "0")
-HAS_SESSIONS=$(sqlite3 "$DB_PATH" "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='sessions';" 2>/dev/null || echo "0")
 ALL_TABLES=$(sqlite3 "$DB_PATH" "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;" 2>/dev/null || echo "<sqlite3 error>")
-log "users=$HAS_USERS sessions=$HAS_SESSIONS tables=[$ALL_TABLES]"
+log "users=$HAS_USERS tables=[$ALL_TABLES]"
 
-# Drop stale partial state
-if [ "$HAS_USERS" = "0" ] && [ "$HAS_SESSIONS" = "1" ]; then
-    log "Broken partial state detected – dropping stale tables..."
-    sqlite3 "$DB_PATH" "
-        DROP TABLE IF EXISTS sessions;
-        DROP TABLE IF EXISTS cache;
-        DROP TABLE IF EXISTS cache_locks;
-        DROP TABLE IF EXISTS jobs;
-        DROP TABLE IF EXISTS migrations;
-    " 2>&1 | tee -a "$LOG"
+# If users table is missing, the DB is broken regardless of what the migrations table says.
+# Drop ALL tables so artisan migrate can run cleanly from scratch.
+if [ "$HAS_USERS" = "0" ]; then
+    log "users table missing – dropping all tables for clean migration..."
+    ALL_TABLE_NAMES=$(sqlite3 "$DB_PATH" "SELECT name FROM sqlite_master WHERE type='table';" 2>/dev/null)
+    for tbl in $ALL_TABLE_NAMES; do
+        log "  dropping: $tbl"
+        sqlite3 "$DB_PATH" "DROP TABLE IF EXISTS \"$tbl\";" 2>/dev/null || true
+    done
+    log "All tables dropped."
 fi
 
 # Run migrations – force DB_DATABASE to the known path
