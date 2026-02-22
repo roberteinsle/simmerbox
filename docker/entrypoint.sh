@@ -36,51 +36,39 @@ if [ -s "$DB_PATH" ]; then
     ls -t "$DB_PATH".backup-* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
 fi
 
-# Clear any stale cached config before migrating (prevents wrong DB path from old cache)
+# Clear any stale cached config before migrating
 echo "[entrypoint] Clearing config cache..."
-php /var/www/html/artisan config:clear 2>/dev/null || true
-php /var/www/html/artisan cache:clear 2>/dev/null || true
+rm -f /var/www/html/bootstrap/cache/config.php
+rm -f /var/www/html/bootstrap/cache/routes*.php
+rm -f /var/www/html/bootstrap/cache/services.php
 
-# Run migrations (show full output for diagnostics)
+# Check if database is in a broken/partial state (has stale tables but no users table)
+echo "[entrypoint] Checking database state..."
+HAS_USERS=$(sqlite3 "$DB_PATH" "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='users';" 2>/dev/null || echo "0")
+HAS_SESSIONS=$(sqlite3 "$DB_PATH" "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='sessions';" 2>/dev/null || echo "0")
+
+echo "[entrypoint] users table exists: $HAS_USERS, sessions table exists: $HAS_SESSIONS"
+
+if [ "$HAS_USERS" = "0" ] && [ "$HAS_SESSIONS" = "1" ]; then
+    echo "[entrypoint] Detected broken partial state – dropping stale tables and starting fresh..."
+    sqlite3 "$DB_PATH" "
+        DROP TABLE IF EXISTS sessions;
+        DROP TABLE IF EXISTS cache;
+        DROP TABLE IF EXISTS cache_locks;
+        DROP TABLE IF EXISTS jobs;
+        DROP TABLE IF EXISTS migrations;
+    " 2>&1
+fi
+
+# Run migrations
 echo "[entrypoint] Running migrations..."
-php /var/www/html/artisan migrate --force 2>&1 || echo "[entrypoint] WARNING: artisan migrate failed, continuing..."
-
-# Safety net: ensure all core Laravel tables exist directly via SQLite (bypasses PHP/artisan)
-echo "[entrypoint] Verifying core tables via SQLite..."
-sqlite3 "$DB_PATH" "
-CREATE TABLE IF NOT EXISTS migrations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    migration TEXT NOT NULL,
-    batch INTEGER NOT NULL
-);
-CREATE TABLE IF NOT EXISTS sessions (
-    id TEXT NOT NULL PRIMARY KEY,
-    user_id INTEGER,
-    ip_address TEXT,
-    user_agent TEXT,
-    payload TEXT NOT NULL DEFAULT '',
-    last_activity INTEGER NOT NULL DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS cache (
-    key TEXT NOT NULL PRIMARY KEY,
-    value TEXT NOT NULL,
-    expiration INTEGER NOT NULL
-);
-CREATE TABLE IF NOT EXISTS cache_locks (
-    key TEXT NOT NULL PRIMARY KEY,
-    owner TEXT NOT NULL,
-    expiration INTEGER NOT NULL
-);
-CREATE TABLE IF NOT EXISTS jobs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    queue TEXT NOT NULL,
-    payload TEXT NOT NULL,
-    attempts INTEGER NOT NULL DEFAULT 0,
-    reserved_at INTEGER,
-    available_at INTEGER NOT NULL,
-    created_at INTEGER NOT NULL
-);
-" 2>&1 && echo "[entrypoint] Core tables OK" || echo "[entrypoint] WARNING: sqlite3 not available"
+if [ "$HAS_USERS" = "0" ]; then
+    echo "[entrypoint] Fresh database – running migrate (all migrations)..."
+    php /var/www/html/artisan migrate --force 2>&1 || echo "[entrypoint] ERROR: migrate failed!"
+else
+    echo "[entrypoint] Existing database – running incremental migrate..."
+    php /var/www/html/artisan migrate --force 2>&1 || echo "[entrypoint] ERROR: migrate failed!"
+fi
 
 # Seed defaults if not already seeded
 echo "[entrypoint] Seeding defaults..."
