@@ -20,6 +20,7 @@ class StoreRecipeRequest extends FormRequest
             'portions' => ['required', 'integer', 'min:1', 'max:100'],
             'preparation_time' => ['nullable', 'integer', 'min:1'],
             'image' => ['nullable', 'image', 'max:5120'],
+            'created_at' => ['nullable', 'date'],
             'tags' => ['nullable', 'string'],
             'ingredients' => ['required', 'array', 'min:1'],
             'ingredients.*.name' => ['required', 'string', 'max:255'],

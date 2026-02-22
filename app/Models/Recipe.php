@@ -77,4 +77,24 @@ class Recipe extends Model
     {
         return $this->hasMany(MealPlan::class);
     }
+
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(RecipeRating::class);
+    }
+
+    public function getAverageRatingAttribute(): ?float
+    {
+        if (isset($this->attributes['ratings_avg_rating'])) {
+            return $this->attributes['ratings_avg_rating']
+                ? round((float) $this->attributes['ratings_avg_rating'], 1)
+                : null;
+        }
+
+        if ($this->relationLoaded('ratings') && $this->ratings->isNotEmpty()) {
+            return round($this->ratings->avg('rating'), 1);
+        }
+
+        return null;
+    }
 }

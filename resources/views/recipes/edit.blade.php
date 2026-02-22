@@ -24,6 +24,12 @@
                 </form>
             </div>
 
+            {{-- Bewertung --}}
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 mt-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Bewertung</h3>
+                <x-star-rating :recipe-id="$recipe->id" :user-rating="$userRating" :average="$averageRating" :count="$ratingCount" />
+            </div>
+
             {{-- Wochenplan Schnellzuweisung --}}
             @if(count($freeDays) > 0)
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 mt-6">

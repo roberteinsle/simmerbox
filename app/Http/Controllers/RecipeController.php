@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateRecipeRequest;
 use App\Models\Category;
 use App\Models\MealPlan;
 use App\Models\Recipe;
+use App\Models\RecipeRating;
 use App\Models\Tag;
 use App\Services\ImageService;
 use Carbon\Carbon;
@@ -24,8 +25,21 @@ class RecipeController extends Controller
 
     public function index(Request $request): View
     {
+        $user = auth()->user();
+        $weekStartDay = $user->bio_box_day ?? Carbon::MONDAY;
+        $weekStart = $this->resolveCurrentWeekStart($weekStartDay);
+
+        $sort = $request->input('sort', 'datum');
+
         $query = Recipe::with(['category', 'tags', 'user'])
-            ->latest();
+            ->withAvg('ratings', 'rating')
+            ->orderByRaw("CASE WHEN bio_kiste_date = ? THEN 0 ELSE 1 END", [$weekStart->toDateString()]);
+
+        match ($sort) {
+            'sterne' => $query->orderByRaw("COALESCE(ratings_avg_rating, 0) DESC")->orderBy('title'),
+            'titel' => $query->orderBy('title'),
+            default => $query->orderBy('created_at', 'desc')->orderByRaw("COALESCE(ratings_avg_rating, 0) DESC"),
+        };
 
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
@@ -50,6 +64,15 @@ class RecipeController extends Controller
         return view('recipes.index', compact('recipes', 'categories', 'tags'));
     }
 
+    private function resolveCurrentWeekStart(int $weekStartDay): Carbon
+    {
+        $date = Carbon::today()->copy();
+        while ($date->dayOfWeek !== $weekStartDay) {
+            $date->subDay();
+        }
+        return $date;
+    }
+
     public function create(): View
     {
         $categories = Category::orderBy('sort_order')->get();
@@ -71,6 +94,7 @@ class RecipeController extends Controller
                 'description' => $validated['description'] ?? null,
                 'portions' => $validated['portions'],
                 'preparation_time' => $validated['preparation_time'] ?? null,
+                'created_at' => $validated['created_at'] ?? now(),
             ]);
 
             if ($request->hasFile('image')) {
@@ -118,7 +142,13 @@ class RecipeController extends Controller
             }
         }
 
-        return view('recipes.show', compact('recipe', 'freeDays'));
+        $userRating = RecipeRating::where('user_id', auth()->id())
+            ->where('recipe_id', $recipe->id)
+            ->value('rating') ?? 0;
+        $averageRating = $recipe->ratings()->avg('rating');
+        $ratingCount = $recipe->ratings()->count();
+
+        return view('recipes.show', compact('recipe', 'freeDays', 'userRating', 'averageRating', 'ratingCount'));
     }
 
     public function edit(Recipe $recipe): View
@@ -153,7 +183,13 @@ class RecipeController extends Controller
             }
         }
 
-        return view('recipes.edit', compact('recipe', 'categories', 'freeDays'));
+        $userRating = RecipeRating::where('user_id', auth()->id())
+            ->where('recipe_id', $recipe->id)
+            ->value('rating') ?? 0;
+        $averageRating = $recipe->ratings()->avg('rating');
+        $ratingCount = $recipe->ratings()->count();
+
+        return view('recipes.edit', compact('recipe', 'categories', 'freeDays', 'userRating', 'averageRating', 'ratingCount'));
     }
 
     public function update(UpdateRecipeRequest $request, Recipe $recipe): RedirectResponse
@@ -170,6 +206,7 @@ class RecipeController extends Controller
                 'description' => $validated['description'] ?? null,
                 'portions' => $validated['portions'],
                 'preparation_time' => $validated['preparation_time'] ?? null,
+                'created_at' => $validated['created_at'] ?? $recipe->created_at,
             ]);
 
             if ($request->boolean('remove_image') && $recipe->image_path) {

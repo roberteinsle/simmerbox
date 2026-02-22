@@ -8,6 +8,7 @@ use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\RecipeExportImportController;
+use App\Http\Controllers\RecipeRatingController;
 use App\Http\Controllers\RecipeImportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Middleware\EnsureAdmin;
@@ -30,6 +31,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Recipes
     Route::resource('recipes', RecipeController::class);
     Route::get('/recipes/{recipe}/print', [RecipeController::class, 'print'])->name('recipes.print');
+    Route::post('/recipes/{recipe}/rate', [RecipeRatingController::class, 'store'])->name('recipes.rate');
+    Route::delete('/recipes/{recipe}/rate', [RecipeRatingController::class, 'destroy'])->name('recipes.rate.destroy');
 
     // Recipe Import/Export
     Route::get('/recipes-import', [RecipeImportController::class, 'create'])->name('recipes.import');

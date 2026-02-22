@@ -46,4 +46,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Recipe::class);
     }
+
+    public function recipeRatings(): HasMany
+    {
+        return $this->hasMany(RecipeRating::class);
+    }
 }

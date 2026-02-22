@@ -42,11 +42,19 @@
                             @endforeach
                         </select>
                     </div>
+                    <div>
+                        <label for="sort" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sortierung</label>
+                        <select name="sort" id="sort" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                            <option value="datum" {{ request('sort', 'datum') == 'datum' ? 'selected' : '' }}>Datum</option>
+                            <option value="sterne" {{ request('sort') == 'sterne' ? 'selected' : '' }}>Sterne</option>
+                            <option value="titel" {{ request('sort') == 'titel' ? 'selected' : '' }}>Titel</option>
+                        </select>
+                    </div>
                     <div class="flex gap-2">
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-olive-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-olive-600 transition">
                             Filtern
                         </button>
-                        @if(request()->hasAny(['q', 'category', 'tag']))
+                        @if(request()->hasAny(['q', 'category', 'tag', 'sort']))
                             <a href="{{ route('recipes.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-300 dark:bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-gray-700 dark:text-gray-200 uppercase tracking-widest hover:bg-gray-400 dark:hover:bg-gray-500 transition">
                                 Zuruecksetzen
                             </a>
@@ -79,6 +87,14 @@
                                     @endforeach
                                 </div>
                                 <h3 class="font-semibold text-gray-900 dark:text-gray-100 truncate">{{ $recipe->title }}</h3>
+                                @if($recipe->ratings_avg_rating)
+                                    <div class="flex items-center gap-0.5 mt-1">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <span class="text-xs {{ $i <= round($recipe->ratings_avg_rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600' }}">&#9733;</span>
+                                        @endfor
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{{ number_format($recipe->ratings_avg_rating, 1, ',', '') }}</span>
+                                    </div>
+                                @endif
                                 <div class="flex items-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
                                     @if($recipe->preparation_time)
                                         <span>{{ $recipe->preparation_time }} Min.</span>

@@ -101,31 +101,35 @@
                                     </div>
 
                                     <!-- Recipe Selector -->
-                                    <div x-show="mode === 'recipe'" x-cloak class="mt-2" x-data="{ showAll: {{ $hasBioKiste ? 'false' : 'true' }} }">
+                                    <div x-show="mode === 'recipe'" x-cloak class="mt-2">
                                         <form method="POST" action="{{ route('meal-plan.store') }}">
                                             @csrf
                                             <input type="hidden" name="date" value="{{ $dateStr }}">
-                                            <select x-show="!showAll" name="recipe_id" onchange="this.form.submit()" class="w-full text-xs border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
-                                                <option value="">🥬 Bio-Kiste...</option>
-                                                @foreach($recipes as $recipe)
-                                                    <option value="{{ $recipe->id }}">{{ $recipe->title }}</option>
-                                                @endforeach
-                                            </select>
-                                            <select x-show="showAll" name="recipe_id" onchange="this.form.submit()" class="w-full text-xs border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
-                                                <option value="">Alle Rezepte...</option>
-                                                @foreach($allRecipes as $recipe)
-                                                    <option value="{{ $recipe->id }}">{{ $recipe->title }}</option>
-                                                @endforeach
+                                            <select name="recipe_id" onchange="this.form.submit()" class="w-full text-xs border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+                                                <option value="">Rezept waehlen...</option>
+                                                @if($hasBioKiste)
+                                                    <optgroup label="Bio-Kiste">
+                                                        @foreach($bioKisteRecipes as $recipe)
+                                                            <option value="{{ $recipe->id }}">{{ $recipe->title }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endif
+                                                @if($fiveStarRecipes->isNotEmpty())
+                                                    <optgroup label="Favoriten">
+                                                        @foreach($fiveStarRecipes as $recipe)
+                                                            <option value="{{ $recipe->id }}">{{ $recipe->title }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endif
+                                                <optgroup label="Weitere Rezepte">
+                                                    @foreach($remainingRecipes as $recipe)
+                                                        <option value="{{ $recipe->id }}">{{ $recipe->title }}</option>
+                                                    @endforeach
+                                                </optgroup>
                                             </select>
                                         </form>
-                                        <div class="flex justify-between mt-1">
+                                        <div class="mt-1">
                                             <button @click="mode = null" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">Abbrechen</button>
-                                            @if($hasBioKiste)
-                                                <button @click="showAll = !showAll" class="text-xs text-olive-500 hover:text-olive-600">
-                                                    <span x-show="!showAll">Alle anzeigen</span>
-                                                    <span x-show="showAll">🥬 Bio-Kiste</span>
-                                                </button>
-                                            @endif
                                         </div>
                                     </div>
 

@@ -60,6 +60,13 @@
         </div>
     </div>
 
+    <!-- Created At -->
+    <div class="mb-4">
+        <label for="created_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Erstellt am</label>
+        <input type="date" name="created_at" id="created_at" value="{{ old('created_at', $recipe?->created_at?->format('Y-m-d') ?? now()->format('Y-m-d')) }}" class="w-full sm:w-auto border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:border-olive-500 focus:ring-olive-500">
+        @error('created_at') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+    </div>
+
     <!-- Tags -->
     <div class="mb-4">
         <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tags (kommagetrennt)</label>

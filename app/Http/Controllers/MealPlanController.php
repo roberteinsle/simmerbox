@@ -6,6 +6,8 @@ use App\Events\MealPlanUpdated;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -52,9 +54,29 @@ class MealPlanController extends Controller
             ->orderBy('title')
             ->get(['id', 'title', 'category_id', 'image_path']);
 
-        $allRecipes = Recipe::orderBy('title')->get(['id', 'title', 'category_id', 'image_path']);
+        $bioKisteIds = $bioKisteRecipes->pluck('id')->toArray();
 
-        $recipes = $bioKisteRecipes->isNotEmpty() ? $bioKisteRecipes : $allRecipes;
+        // 5-Sterne-Favoriten sortiert nach letztem Einsatz im Wochenplan
+        $fiveStarRecipes = Recipe::select('recipes.id', 'recipes.title', 'recipes.category_id', 'recipes.image_path')
+            ->whereNotIn('recipes.id', $bioKisteIds ?: [0])
+            ->whereRaw('ROUND((SELECT AVG(rr.rating) FROM recipe_ratings rr WHERE rr.recipe_id = recipes.id)) = 5')
+            ->leftJoin(
+                DB::raw('(SELECT recipe_id, MAX(date) as last_meal_date FROM meal_plans WHERE recipe_id IS NOT NULL GROUP BY recipe_id) as lm'),
+                'recipes.id', '=', 'lm.recipe_id'
+            )
+            ->orderByRaw('lm.last_meal_date DESC NULLS LAST')
+            ->orderBy('recipes.title')
+            ->get();
+
+        $fiveStarIds = $fiveStarRecipes->pluck('id')->toArray();
+
+        // Restliche Rezepte
+        $remainingRecipes = Recipe::whereNotIn('id', array_merge($bioKisteIds, $fiveStarIds))
+            ->orderBy('title')
+            ->get(['id', 'title', 'category_id', 'image_path']);
+
+        $recipes = $bioKisteRecipes;
+        $hasBioKiste = $bioKisteRecipes->isNotEmpty();
 
         $prevWeek = $startDate->copy()->subWeek()->toDateString();
         $nextWeek = $startDate->copy()->addWeek()->toDateString();
@@ -63,11 +85,9 @@ class MealPlanController extends Controller
         $monday = $startDate;
         $sunday = $endDate;
 
-        $hasBioKiste = $bioKisteRecipes->isNotEmpty();
-
         return view('meal-plan.index', compact(
-            'days', 'mealPlans', 'recipes', 'allRecipes', 'hasBioKiste',
-            'monday', 'sunday', 'prevWeek', 'nextWeek', 'weekLabel'
+            'days', 'mealPlans', 'recipes', 'bioKisteRecipes', 'fiveStarRecipes', 'remainingRecipes',
+            'hasBioKiste', 'monday', 'sunday', 'prevWeek', 'nextWeek', 'weekLabel'
         ));
     }
 

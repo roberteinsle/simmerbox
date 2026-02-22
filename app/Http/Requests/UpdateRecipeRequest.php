@@ -21,6 +21,7 @@ class UpdateRecipeRequest extends FormRequest
             'preparation_time' => ['nullable', 'integer', 'min:1'],
             'image' => ['nullable', 'image', 'max:5120'],
             'remove_image' => ['nullable', 'boolean'],
+            'created_at' => ['nullable', 'date'],
             'tags' => ['nullable', 'string'],
             'ingredients' => ['required', 'array', 'min:1'],
             'ingredients.*.name' => ['required', 'string', 'max:255'],
