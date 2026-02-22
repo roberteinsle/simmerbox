@@ -11,6 +11,11 @@ class ImageService
 {
     protected ?ImageManager $manager = null;
 
+    protected function gdAvailable(): bool
+    {
+        return extension_loaded('gd');
+    }
+
     protected function manager(): ImageManager
     {
         return $this->manager ??= new ImageManager(new Driver());
@@ -20,6 +25,11 @@ class ImageService
     {
         $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
         $path = $directory . '/' . $filename;
+
+        if (!$this->gdAvailable()) {
+            Storage::disk('public')->putFileAs($directory, $file, basename($path));
+            return $path;
+        }
 
         $image = $this->manager()->read($file->getPathname());
         $image->scaleDown(width: 1200);
