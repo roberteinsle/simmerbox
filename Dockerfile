@@ -20,6 +20,7 @@ RUN apk add --no-cache \
     nginx \
     supervisor \
     curl \
+    sqlite \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \

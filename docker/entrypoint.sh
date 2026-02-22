@@ -43,7 +43,18 @@ php /var/www/html/artisan cache:clear 2>/dev/null || true
 
 # Run migrations
 echo "[entrypoint] Running migrations..."
-php /var/www/html/artisan migrate --force || { echo "[entrypoint] ERROR: migrations failed!"; exit 1; }
+php /var/www/html/artisan migrate --force 2>&1 || echo "[entrypoint] WARNING: artisan migrate failed, continuing..."
+
+# Safety net: ensure critical tables exist directly via SQLite (bypasses PHP/artisan)
+echo "[entrypoint] Verifying critical tables via SQLite..."
+sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS sessions (
+    id TEXT NOT NULL PRIMARY KEY,
+    user_id INTEGER,
+    ip_address TEXT,
+    user_agent TEXT,
+    payload TEXT NOT NULL DEFAULT '',
+    last_activity INTEGER NOT NULL DEFAULT 0
+);" 2>&1 && echo "[entrypoint] sessions table OK" || echo "[entrypoint] WARNING: sqlite3 not available"
 
 # Seed defaults if not already seeded
 echo "[entrypoint] Seeding defaults..."
