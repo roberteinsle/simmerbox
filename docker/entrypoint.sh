@@ -36,6 +36,11 @@ if [ -s "$DB_PATH" ]; then
     ls -t "$DB_PATH".backup-* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
 fi
 
+# Clear any stale cached config before migrating (prevents wrong DB path from old cache)
+echo "[entrypoint] Clearing config cache..."
+php /var/www/html/artisan config:clear 2>/dev/null || true
+php /var/www/html/artisan cache:clear 2>/dev/null || true
+
 # Run migrations
 echo "[entrypoint] Running migrations..."
 php /var/www/html/artisan migrate --force || { echo "[entrypoint] ERROR: migrations failed!"; exit 1; }
