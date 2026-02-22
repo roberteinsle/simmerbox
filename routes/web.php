@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/meal-plan', [MealPlanController::class, 'index'])->name('meal-plan.index');
         Route::post('/meal-plan', [MealPlanController::class, 'store'])->name('meal-plan.store');
         Route::delete('/meal-plan/{mealPlan}', [MealPlanController::class, 'destroy'])->name('meal-plan.destroy');
+        Route::patch('/meal-plan/{mealPlan}/move', [MealPlanController::class, 'move'])->name('meal-plan.move');
         Route::get('/meal-plan/print', [MealPlanController::class, 'print'])->name('meal-plan.print');
 
         // Groceries

@@ -38,13 +38,43 @@
             </div>
 
             <!-- Week Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-7 gap-3">
+            <div
+                class="grid grid-cols-1 md:grid-cols-7 gap-3"
+                x-data="{
+                    draggingId: null,
+                    draggingOver: null,
+                    dragStart(id) { this.draggingId = id; },
+                    dragEnd() { this.draggingId = null; this.draggingOver = null; },
+                    async drop(targetDate) {
+                        if (!this.draggingId) return;
+                        this.draggingOver = null;
+                        const id = this.draggingId;
+                        this.draggingId = null;
+                        const res = await fetch(`/meal-plan/${id}/move`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                            },
+                            body: JSON.stringify({ target_date: targetDate }),
+                        });
+                        if (res.ok) window.location.reload();
+                    }
+                }"
+            >
                 @foreach($days as $day)
                     @php
                         $dateStr = $day['date']->toDateString();
                         $mealPlan = $mealPlans[$dateStr] ?? null;
                     @endphp
-                    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg overflow-hidden {{ $day['isToday'] ? 'ring-2 ring-olive-500' : '' }}">
+                    <div
+                        class="bg-white dark:bg-gray-800 shadow-sm rounded-lg overflow-hidden transition-all duration-150
+                            {{ $day['isToday'] ? 'ring-2 ring-olive-500' : '' }}"
+                        :class="draggingOver === '{{ $dateStr }}' && draggingId ? 'ring-2 ring-olive-400 bg-olive-50 dark:bg-olive-900/20 scale-[1.02]' : ''"
+                        @dragover.prevent="draggingOver = '{{ $dateStr }}'"
+                        @dragleave="draggingOver = null"
+                        @drop.prevent="drop('{{ $dateStr }}')"
+                    >
                         <!-- Day Header -->
                         <div class="px-3 py-2 {{ $day['isToday'] ? 'bg-olive-500 text-white' : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
                             <div class="font-semibold text-sm">{{ $day['name'] }}</div>
@@ -54,17 +84,28 @@
                         <!-- Content -->
                         <div class="p-3 min-h-[120px] flex flex-col">
                             @if($mealPlan && $mealPlan->recipe_id)
-                                <a href="{{ route('recipes.show', $mealPlan->recipe) }}" class="flex-1 group">
-                                    @if($mealPlan->recipe->image_path)
-                                        <img src="{{ asset('storage/' . $mealPlan->recipe->image_path) }}" alt="{{ $mealPlan->recipe->title }}" class="w-full h-24 object-cover rounded-md mb-2">
-                                    @endif
-                                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-olive-500 transition">
-                                        {{ $mealPlan->recipe->title }}
+                                <div
+                                    draggable="true"
+                                    @dragstart="dragStart({{ $mealPlan->id }})"
+                                    @dragend="dragEnd()"
+                                    class="flex-1 cursor-grab active:cursor-grabbing select-none"
+                                    :class="draggingId === {{ $mealPlan->id }} ? 'opacity-40' : ''"
+                                >
+                                    <a href="{{ route('recipes.show', $mealPlan->recipe) }}" class="flex-1 group" @click.stop>
+                                        @if($mealPlan->recipe->image_path)
+                                            <img src="{{ asset('storage/' . $mealPlan->recipe->image_path) }}" alt="{{ $mealPlan->recipe->title }}" class="w-full h-24 object-cover rounded-md mb-2 pointer-events-none">
+                                        @endif
+                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-olive-500 transition">
+                                            {{ $mealPlan->recipe->title }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            {{ $mealPlan->recipe->category->name }}
+                                        </div>
+                                    </a>
+                                    <div class="mt-1">
+                                        <svg class="w-3 h-3 text-gray-300 dark:text-gray-600 inline" fill="currentColor" viewBox="0 0 24 24"><path d="M8 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm8-12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/></svg>
                                     </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        {{ $mealPlan->recipe->category->name }}
-                                    </div>
-                                </a>
+                                </div>
                                 <form method="POST" action="{{ route('meal-plan.destroy', $mealPlan) }}" class="mt-2">
                                     @csrf
                                     @method('DELETE')
@@ -73,7 +114,13 @@
                                     </button>
                                 </form>
                             @elseif($mealPlan && $mealPlan->note)
-                                <div class="flex-1">
+                                <div
+                                    draggable="true"
+                                    @dragstart="dragStart({{ $mealPlan->id }})"
+                                    @dragend="dragEnd()"
+                                    class="flex-1 cursor-grab active:cursor-grabbing select-none"
+                                    :class="draggingId === {{ $mealPlan->id }} ? 'opacity-40' : ''"
+                                >
                                     <div class="text-sm text-gray-900 dark:text-gray-100">
                                         {{ $mealPlan->note }}
                                     </div>
@@ -87,8 +134,12 @@
                                     </button>
                                 </form>
                             @else
+                                <!-- Drop hint when dragging -->
+                                <div x-show="draggingId" class="flex-1 flex items-center justify-center rounded-md border-2 border-dashed border-olive-300 dark:border-olive-700 text-olive-400 dark:text-olive-600 text-xs py-4" x-cloak>
+                                    Hier ablegen
+                                </div>
                                 <!-- Recipe / Note Selector -->
-                                <div x-data="{ mode: null }" class="flex-1 flex flex-col justify-center">
+                                <div x-data="{ mode: null }" x-show="!draggingId" class="flex-1 flex flex-col justify-center">
                                     <div x-show="!mode" class="flex gap-2 justify-center py-2">
                                         <button @click="mode = 'recipe'" class="flex flex-col items-center py-2 px-3 text-gray-400 dark:text-gray-500 hover:text-olive-500 dark:hover:text-olive-400 transition">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>

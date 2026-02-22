@@ -127,6 +127,43 @@ class MealPlanController extends Controller
         return back()->with('success', 'Wochenplan aktualisiert.');
     }
 
+    public function move(Request $request, MealPlan $mealPlan): JsonResponse
+    {
+        $this->authorize('update', $mealPlan);
+
+        $request->validate([
+            'target_date' => ['required', 'date'],
+        ]);
+
+        $user = auth()->user();
+        $targetDate = $request->input('target_date');
+        $sourceDate = $mealPlan->date->toDateString();
+
+        if ($sourceDate === $targetDate) {
+            return response()->json(['success' => true]);
+        }
+
+        $targetMealPlan = MealPlan::where('household_id', $user->household_id)
+            ->where('date', $targetDate)
+            ->first();
+
+        DB::transaction(function () use ($mealPlan, $targetMealPlan, $sourceDate, $targetDate) {
+            if ($targetMealPlan) {
+                // Swap: temp-date needed to avoid unique constraint conflict
+                $mealPlan->update(['date' => '1970-01-01']);
+                $targetMealPlan->update(['date' => $sourceDate]);
+                $mealPlan->update(['date' => $targetDate]);
+            } else {
+                $mealPlan->update(['date' => $targetDate]);
+            }
+        });
+
+        broadcast(new MealPlanUpdated($user->household_id, 'updated', $targetDate))->toOthers();
+        broadcast(new MealPlanUpdated($user->household_id, 'updated', $sourceDate))->toOthers();
+
+        return response()->json(['success' => true]);
+    }
+
     public function destroy(MealPlan $mealPlan): RedirectResponse
     {
         $this->authorize('delete', $mealPlan);
